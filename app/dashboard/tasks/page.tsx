@@ -1,205 +1,207 @@
 "use client"
 
 import { useState } from "react"
-import { DragDropContext, Droppable, Draggable, type DropResult } from "react-beautiful-dnd"
-import { Plus, Clock, Search, Filter } from "lucide-react"
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd"
+import { Search, Filter, Plus, MoreHorizontal, Calendar, Paperclip, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Progress } from "@/components/ui/progress"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
-interface Task {
-  id: string
-  title: string
-  description?: string
-  priority: "low" | "medium" | "high"
-  dueDate?: string
-  assignee?: string
-  tags?: string[]
-  status: "backlog" | "todo" | "in-progress" | "testing" | "done"
-}
-
-export default function TaskBoardPage() {
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: "1",
-      title: "Update homepage design",
-      description: "Implement new hero section and improve responsive layout",
-      priority: "high",
-      dueDate: "2023-10-15",
-      assignee: "John Doe",
-      tags: ["design", "frontend"],
-      status: "todo",
+// Mock data
+const initialTasks = [
+  {
+    id: "task-1",
+    title: "Redesign homepage",
+    description: "Update the homepage with new branding and improve user experience",
+    status: "backlog",
+    priority: "high",
+    assignee: {
+      id: "user-1",
+      name: "John Doe",
+      avatar: "/placeholder.svg?height=32&width=32",
     },
-    {
-      id: "2",
-      title: "Fix navigation bug",
-      description: "Mobile menu doesn't close when clicking outside",
-      priority: "medium",
-      dueDate: "2023-10-10",
-      assignee: "Jane Smith",
-      tags: ["bug", "frontend"],
-      status: "in-progress",
+    dueDate: "2023-11-15",
+    client: "Acme Inc",
+    project: "Website Redesign",
+    tags: ["design", "frontend"],
+    attachments: 2,
+    comments: 3,
+    hours: 16,
+    completedHours: 0,
+  },
+  {
+    id: "task-2",
+    title: "Implement authentication",
+    description: "Set up user authentication and authorization system",
+    status: "in-progress",
+    priority: "high",
+    assignee: {
+      id: "user-2",
+      name: "Jane Smith",
+      avatar: "/placeholder.svg?height=32&width=32",
     },
-    {
-      id: "3",
-      title: "Implement authentication",
-      description: "Add login, registration and password recovery",
-      priority: "high",
-      dueDate: "2023-10-20",
-      assignee: "Mike Johnson",
-      tags: ["backend", "security"],
-      status: "backlog",
-    },
-    {
-      id: "4",
-      title: "Create API documentation",
-      description: "Document all endpoints with examples",
-      priority: "low",
-      dueDate: "2023-10-30",
-      assignee: "Sarah Williams",
-      tags: ["documentation"],
-      status: "todo",
-    },
-    {
-      id: "5",
-      title: "Optimize image loading",
-      description: "Implement lazy loading and WebP format",
-      priority: "medium",
-      dueDate: "2023-10-12",
-      assignee: "John Doe",
-      tags: ["performance", "frontend"],
-      status: "testing",
-    },
-    {
-      id: "6",
-      title: "Database optimization",
-      description: "Improve query performance for user dashboard",
-      priority: "high",
-      dueDate: "2023-10-08",
-      assignee: "Mike Johnson",
-      tags: ["database", "performance"],
-      status: "in-progress",
-    },
-    {
-      id: "7",
-      title: "Deploy to production",
-      description: "Final checks and deployment",
-      priority: "high",
-      dueDate: "2023-10-25",
-      assignee: "Jane Smith",
-      tags: ["devops"],
-      status: "backlog",
-    },
-    {
-      id: "8",
-      title: "Write unit tests",
-      description: "Increase test coverage for core components",
-      priority: "medium",
-      dueDate: "2023-10-18",
-      assignee: "Sarah Williams",
-      tags: ["testing"],
-      status: "todo",
-    },
-    {
-      id: "9",
-      title: "Update dependencies",
-      description: "Update all npm packages to latest versions",
-      priority: "low",
-      dueDate: "2023-10-22",
-      assignee: "John Doe",
-      tags: ["maintenance"],
-      status: "done",
-    },
-  ])
-
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [newTask, setNewTask] = useState<Partial<Task>>({
-    title: "",
-    description: "",
+    dueDate: "2023-11-10",
+    client: "TechCorp",
+    project: "Mobile App",
+    tags: ["backend", "security"],
+    attachments: 1,
+    comments: 5,
+    hours: 24,
+    completedHours: 10,
+  },
+  {
+    id: "task-3",
+    title: "Create API documentation",
+    description: "Document all API endpoints and parameters",
+    status: "in-progress",
     priority: "medium",
-    status: "todo",
-  })
+    assignee: {
+      id: "user-1",
+      name: "John Doe",
+      avatar: "/placeholder.svg?height=32&width=32",
+    },
+    dueDate: "2023-11-20",
+    client: "TechCorp",
+    project: "Mobile App",
+    tags: ["documentation", "backend"],
+    attachments: 0,
+    comments: 2,
+    hours: 8,
+    completedHours: 4,
+  },
+  {
+    id: "task-4",
+    title: "Design logo variations",
+    description: "Create multiple logo variations for client review",
+    status: "done",
+    priority: "medium",
+    assignee: {
+      id: "user-3",
+      name: "Emily Johnson",
+      avatar: "/placeholder.svg?height=32&width=32",
+    },
+    dueDate: "2023-11-05",
+    client: "Acme Inc",
+    project: "Brand Refresh",
+    tags: ["design", "branding"],
+    attachments: 5,
+    comments: 8,
+    hours: 12,
+    completedHours: 12,
+  },
+  {
+    id: "task-5",
+    title: "Optimize database queries",
+    description: "Improve performance of slow database queries",
+    status: "backlog",
+    priority: "low",
+    assignee: {
+      id: "user-4",
+      name: "Michael Brown",
+      avatar: "/placeholder.svg?height=32&width=32",
+    },
+    dueDate: "2023-11-25",
+    client: "TechCorp",
+    project: "Mobile App",
+    tags: ["backend", "performance"],
+    attachments: 0,
+    comments: 1,
+    hours: 16,
+    completedHours: 0,
+  },
+  {
+    id: "task-6",
+    title: "Create social media graphics",
+    description: "Design graphics for upcoming marketing campaign",
+    status: "done",
+    priority: "high",
+    assignee: {
+      id: "user-3",
+      name: "Emily Johnson",
+      avatar: "/placeholder.svg?height=32&width=32",
+    },
+    dueDate: "2023-11-08",
+    client: "Acme Inc",
+    project: "Marketing Campaign",
+    tags: ["design", "marketing"],
+    attachments: 8,
+    comments: 4,
+    hours: 10,
+    completedHours: 10,
+  },
+]
+
+const clients = ["Acme Inc", "TechCorp", "GlobalMedia", "StartupX"]
+const projects = ["Website Redesign", "Mobile App", "Brand Refresh", "Marketing Campaign"]
+const tags = ["design", "frontend", "backend", "documentation", "security", "performance", "marketing", "branding"]
+const users = [
+  { id: "user-1", name: "John Doe", avatar: "/placeholder.svg?height=32&width=32" },
+  { id: "user-2", name: "Jane Smith", avatar: "/placeholder.svg?height=32&width=32" },
+  { id: "user-3", name: "Emily Johnson", avatar: "/placeholder.svg?height=32&width=32" },
+  { id: "user-4", name: "Michael Brown", avatar: "/placeholder.svg?height=32&width=32" },
+]
+
+export default function TasksPage() {
+  const [tasks, setTasks] = useState(initialTasks)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterPriority, setFilterPriority] = useState<string | null>(null)
   const [filterAssignee, setFilterAssignee] = useState<string | null>(null)
+  const [filterClient, setFilterClient] = useState<string | null>(null)
   const [filterTag, setFilterTag] = useState<string | null>(null)
-
-  const handleDragEnd = (result: DropResult) => {
-    const { destination, source, draggableId } = result
-
-    // If there's no destination or the item is dropped in the same place
-    if (!destination || (destination.droppableId === source.droppableId && destination.index === source.index)) {
-      return
-    }
-
-    // Find the task that was dragged
-    const task = tasks.find((t) => t.id === draggableId)
-    if (!task) return
-
-    // Create a new array without the dragged task
-    const newTasks = tasks.filter((t) => t.id !== draggableId)
-
-    // Create a copy of the task with the new status
-    const updatedTask = { ...task, status: destination.droppableId as Task["status"] }
-
-    // Insert the task at the new position
-    newTasks.splice(destination.index, 0, updatedTask)
-
-    setTasks(newTasks)
-  }
-
-  const handleCreateTask = () => {
-    if (!newTask.title) return
-
-    const task: Task = {
-      id: Date.now().toString(),
-      title: newTask.title,
-      description: newTask.description,
-      priority: newTask.priority as "low" | "medium" | "high",
-      dueDate: newTask.dueDate,
-      assignee: newTask.assignee,
-      tags: newTask.tags,
-      status: newTask.status as "backlog" | "todo" | "in-progress" | "testing" | "done",
-    }
-
-    setTasks([...tasks, task])
-    setIsDialogOpen(false)
-    setNewTask({
-      title: "",
-      description: "",
-      priority: "medium",
-      status: "todo",
-    })
-  }
+  const [isNewTaskDialogOpen, setIsNewTaskDialogOpen] = useState(false)
+  const [editingTask, setEditingTask] = useState<any | null>(null)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
   const filteredTasks = tasks.filter((task) => {
     // Search filter
     const matchesSearch =
       searchQuery === "" ||
       task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (task.tags && task.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase())))
+      task.description.toLowerCase().includes(searchQuery.toLowerCase())
 
     // Priority filter
     const matchesPriority = !filterPriority || task.priority === filterPriority
 
     // Assignee filter
-    const matchesAssignee = !filterAssignee || task.assignee === filterAssignee
+    const matchesAssignee = !filterAssignee || task.assignee.id === filterAssignee
+
+    // Client filter
+    const matchesClient = !filterClient || task.client === filterClient
 
     // Tag filter
-    const matchesTag = !filterTag || (task.tags && task.tags.includes(filterTag))
+    const matchesTag = !filterTag || task.tags.includes(filterTag)
 
-    return matchesSearch && matchesPriority && matchesAssignee && matchesTag
+    return matchesSearch && matchesPriority && matchesAssignee && matchesClient && matchesTag
   })
 
-  const getColumnTasks = (status: Task["status"]) => {
+  const getColumnTasks = (status: string) => {
     return filteredTasks.filter((task) => task.status === status)
   }
 
-  const getPriorityStyles = (priority: string) => {
+  const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "high":
         return "bg-red-900/30 text-red-400 border-red-500/30"
@@ -212,20 +214,114 @@ export default function TaskBoardPage() {
     }
   }
 
-  // Get unique assignees for filter
-  const assignees = Array.from(new Set(tasks.map((task) => task.assignee).filter(Boolean))) as string[]
+  const handleDragEnd = (result: any) => {
+    const { destination, source, draggableId } = result
 
-  // Get unique tags for filter
-  const allTags = tasks.reduce((acc: string[], task) => {
-    if (task.tags) {
-      return [...acc, ...task.tags]
+    // If there's no destination or the item is dropped back to its original position
+    if (!destination || (destination.droppableId === source.droppableId && destination.index === source.index)) {
+      return
     }
-    return acc
-  }, [])
-  const uniqueTags = Array.from(new Set(allTags))
+
+    // Find the task that was dragged
+    const task = tasks.find((t) => t.id === draggableId)
+    if (!task) return
+
+    // Create a new array without the dragged task
+    const newTasks = tasks.filter((t) => t.id !== draggableId)
+
+    // Create a copy of the task with the updated status
+    const updatedTask = { ...task, status: destination.droppableId }
+
+    // Insert the updated task at the new position
+    newTasks.splice(destination.index, 0, updatedTask)
+
+    // Update the state
+    setTasks(newTasks)
+  }
+
+  const handleCreateTask = (formData: FormData) => {
+    const title = formData.get("title") as string
+    const description = formData.get("description") as string
+    const priority = formData.get("priority") as string
+    const assigneeId = formData.get("assignee") as string
+    const dueDate = formData.get("due-date") as string
+    const client = formData.get("client") as string
+    const project = formData.get("project") as string
+    const tagsString = formData.get("tags") as string
+    const hours = Number(formData.get("hours"))
+    const completedHours = Number(formData.get("completed-hours"))
+
+    const assignee = users.find((user) => user.id === assigneeId) || users[0]
+    const taskTags = tagsString.split(",").map((tag) => tag.trim())
+
+    const newTask = {
+      id: `task-${Date.now()}`,
+      title,
+      description,
+      status: "backlog",
+      priority,
+      assignee,
+      dueDate,
+      client,
+      project,
+      tags: taskTags,
+      attachments: 0,
+      comments: 0,
+      hours,
+      completedHours,
+    }
+
+    setTasks([...tasks, newTask])
+    setIsNewTaskDialogOpen(false)
+  }
+
+  const handleEditTask = (formData: FormData) => {
+    if (!editingTask) return
+
+    const title = formData.get("title") as string
+    const description = formData.get("description") as string
+    const priority = formData.get("priority") as string
+    const assigneeId = formData.get("assignee") as string
+    const dueDate = formData.get("due-date") as string
+    const client = formData.get("client") as string
+    const project = formData.get("project") as string
+    const tagsString = formData.get("tags") as string
+    const hours = Number(formData.get("hours"))
+    const completedHours = Number(formData.get("completed-hours"))
+
+    const assignee = users.find((user) => user.id === assigneeId) || editingTask.assignee
+    const taskTags = tagsString.split(",").map((tag: string) => tag.trim())
+
+    const updatedTask = {
+      ...editingTask,
+      title,
+      description,
+      priority,
+      assignee,
+      dueDate,
+      client,
+      project,
+      tags: taskTags,
+      hours,
+      completedHours,
+    }
+
+    setTasks(tasks.map((task) => (task.id === editingTask.id ? updatedTask : task)))
+    setIsEditDialogOpen(false)
+    setEditingTask(null)
+  }
+
+  const openEditDialog = (task: any) => {
+    setEditingTask(task)
+    setIsEditDialogOpen(true)
+  }
+
+  const deleteTask = (taskId: string) => {
+    setTasks(tasks.filter((task) => task.id !== taskId))
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h1 className="text-2xl md:text-3xl font-bold text-white">Task Board</h1>
         <div className="flex flex-wrap items-center gap-3">
@@ -272,9 +368,26 @@ export default function TaskBoardPage() {
                     </SelectTrigger>
                     <SelectContent className="bg-gray-900 border-gray-700 text-white">
                       <SelectItem value="all">All assignees</SelectItem>
-                      {assignees.map((assignee) => (
-                        <SelectItem key={assignee} value={assignee}>
-                          {assignee}
+                      {users.map((user) => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Client</label>
+                  <Select value={filterClient || ""} onValueChange={(value) => setFilterClient(value || null)}>
+                    <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
+                      <SelectValue placeholder="All clients" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                      <SelectItem value="all">All clients</SelectItem>
+                      {clients.map((client) => (
+                        <SelectItem key={client} value={client}>
+                          {client}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -289,7 +402,7 @@ export default function TaskBoardPage() {
                     </SelectTrigger>
                     <SelectContent className="bg-gray-900 border-gray-700 text-white">
                       <SelectItem value="all">All tags</SelectItem>
-                      {uniqueTags.map((tag) => (
+                      {tags.map((tag) => (
                         <SelectItem key={tag} value={tag}>
                           {tag}
                         </SelectItem>
@@ -304,6 +417,7 @@ export default function TaskBoardPage() {
                   onClick={() => {
                     setFilterPriority(null)
                     setFilterAssignee(null)
+                    setFilterClient(null)
                     setFilterTag(null)
                   }}
                   className="w-full border-gray-700 text-gray-400 hover:text-white"
@@ -314,210 +428,493 @@ export default function TaskBoardPage() {
             </PopoverContent>
           </Popover>
 
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isNewTaskDialogOpen} onOpenChange={setIsNewTaskDialogOpen}>
             <DialogTrigger asChild>
               <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 text-white">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Task
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-gray-900 border-gray-800 text-white">
+            <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-2xl">
               <DialogHeader>
                 <DialogTitle>Create New Task</DialogTitle>
+                <DialogDescription className="text-gray-400">
+                  Add a new task to your board. Fill in the details below.
+                </DialogDescription>
               </DialogHeader>
-              <div className="space-y-4 py-4">
+              <form action={handleCreateTask} className="space-y-4 py-4">
                 <div>
-                  <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-1">
+                  <Label htmlFor="title" className="text-gray-300">
                     Task Title*
-                  </label>
+                  </Label>
                   <Input
                     id="title"
-                    value={newTask.title}
-                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                    name="title"
                     placeholder="Enter task title"
-                    className="bg-gray-800 border-gray-700 text-white"
+                    className="bg-gray-800 border-gray-700 text-white mt-1"
+                    required
                   />
                 </div>
                 <div>
-                  <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-1">
+                  <Label htmlFor="description" className="text-gray-300">
                     Description
-                  </label>
+                  </Label>
                   <Textarea
                     id="description"
-                    value={newTask.description}
-                    onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                    name="description"
                     placeholder="Enter task description"
-                    className="bg-gray-800 border-gray-700 text-white"
+                    className="bg-gray-800 border-gray-700 text-white mt-1"
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="priority" className="block text-sm font-medium text-gray-300 mb-1">
+                    <Label htmlFor="priority" className="text-gray-300">
                       Priority*
-                    </label>
-                    <Select
-                      value={newTask.priority}
-                      onValueChange={(value) => setNewTask({ ...newTask, priority: value as any })}
-                    >
-                      <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                    </Label>
+                    <Select name="priority" defaultValue="medium">
+                      <SelectTrigger className="bg-gray-800 border-gray-700 text-white mt-1">
                         <SelectValue placeholder="Select priority" />
                       </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                        <SelectItem value="low">Low</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
+                      <SelectContent className="bg-gray-900 border-gray-700 text-white">
                         <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="low">Low</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div>
-                    <label htmlFor="status" className="block text-sm font-medium text-gray-300 mb-1">
-                      Status*
-                    </label>
-                    <Select
-                      value={newTask.status}
-                      onValueChange={(value) => setNewTask({ ...newTask, status: value as any })}
-                    >
-                      <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
-                        <SelectValue placeholder="Select status" />
+                    <Label htmlFor="assignee" className="text-gray-300">
+                      Assignee*
+                    </Label>
+                    <Select name="assignee">
+                      <SelectTrigger className="bg-gray-800 border-gray-700 text-white mt-1">
+                        <SelectValue placeholder="Select assignee" />
                       </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                        <SelectItem value="backlog">Backlog</SelectItem>
-                        <SelectItem value="todo">To Do</SelectItem>
-                        <SelectItem value="in-progress">In Progress</SelectItem>
-                        <SelectItem value="testing">Testing</SelectItem>
-                        <SelectItem value="done">Done</SelectItem>
+                      <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                        {users.map((user) => (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="dueDate" className="block text-sm font-medium text-gray-300 mb-1">
-                      Due Date
-                    </label>
+                    <Label htmlFor="due-date" className="text-gray-300">
+                      Due Date*
+                    </Label>
                     <Input
-                      id="dueDate"
+                      id="due-date"
+                      name="due-date"
                       type="date"
-                      value={newTask.dueDate}
-                      onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
-                      className="bg-gray-800 border-gray-700 text-white"
+                      className="bg-gray-800 border-gray-700 text-white mt-1"
+                      required
                     />
                   </div>
                   <div>
-                    <label htmlFor="assignee" className="block text-sm font-medium text-gray-300 mb-1">
-                      Assignee
-                    </label>
+                    <Label htmlFor="client" className="text-gray-300">
+                      Client*
+                    </Label>
+                    <Select name="client">
+                      <SelectTrigger className="bg-gray-800 border-gray-700 text-white mt-1">
+                        <SelectValue placeholder="Select client" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                        {clients.map((client) => (
+                          <SelectItem key={client} value={client}>
+                            {client}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="project" className="text-gray-300">
+                      Project*
+                    </Label>
+                    <Select name="project">
+                      <SelectTrigger className="bg-gray-800 border-gray-700 text-white mt-1">
+                        <SelectValue placeholder="Select project" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                        {projects.map((project) => (
+                          <SelectItem key={project} value={project}>
+                            {project}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="tags" className="text-gray-300">
+                      Tags (comma separated)
+                    </Label>
                     <Input
-                      id="assignee"
-                      value={newTask.assignee}
-                      onChange={(e) => setNewTask({ ...newTask, assignee: e.target.value })}
-                      placeholder="Enter assignee name"
-                      className="bg-gray-800 border-gray-700 text-white"
+                      id="tags"
+                      name="tags"
+                      placeholder="design, frontend, etc."
+                      className="bg-gray-800 border-gray-700 text-white mt-1"
                     />
                   </div>
                 </div>
-                <div>
-                  <label htmlFor="tags" className="block text-sm font-medium text-gray-300 mb-1">
-                    Tags (comma separated)
-                  </label>
-                  <Input
-                    id="tags"
-                    value={newTask.tags?.join(", ") || ""}
-                    onChange={(e) =>
-                      setNewTask({
-                        ...newTask,
-                        tags: e.target.value
-                          .split(",")
-                          .map((tag) => tag.trim())
-                          .filter(Boolean),
-                      })
-                    }
-                    placeholder="e.g. frontend, bug, feature"
-                    className="bg-gray-800 border-gray-700 text-white"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="hours" className="text-gray-300">
+                      Estimated Hours*
+                    </Label>
+                    <Input
+                      id="hours"
+                      name="hours"
+                      type="number"
+                      placeholder="Enter hours"
+                      className="bg-gray-800 border-gray-700 text-white mt-1"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="completed-hours" className="text-gray-300">
+                      Completed Hours
+                    </Label>
+                    <Input
+                      id="completed-hours"
+                      name="completed-hours"
+                      type="number"
+                      placeholder="Enter hours"
+                      className="bg-gray-800 border-gray-700 text-white mt-1"
+                      defaultValue="0"
+                    />
+                  </div>
                 </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsDialogOpen(false)}
-                  className="border-gray-700 text-gray-400 hover:text-white"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleCreateTask}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 text-white"
-                >
-                  Create Task
-                </Button>
-              </DialogFooter>
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsNewTaskDialogOpen(false)}
+                    className="border-gray-700 text-gray-400 hover:text-white"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 text-white"
+                  >
+                    Create Task
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Edit Task</DialogTitle>
+                <DialogDescription className="text-gray-400">Update the task details below.</DialogDescription>
+              </DialogHeader>
+              {editingTask && (
+                <form action={handleEditTask} className="space-y-4 py-4">
+                  <div>
+                    <Label htmlFor="edit-title" className="text-gray-300">
+                      Task Title*
+                    </Label>
+                    <Input
+                      id="edit-title"
+                      name="title"
+                      placeholder="Enter task title"
+                      className="bg-gray-800 border-gray-700 text-white mt-1"
+                      defaultValue={editingTask.title}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-description" className="text-gray-300">
+                      Description
+                    </Label>
+                    <Textarea
+                      id="edit-description"
+                      name="description"
+                      placeholder="Enter task description"
+                      className="bg-gray-800 border-gray-700 text-white mt-1"
+                      defaultValue={editingTask.description}
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="edit-priority" className="text-gray-300">
+                        Priority*
+                      </Label>
+                      <Select name="priority" defaultValue={editingTask.priority}>
+                        <SelectTrigger className="bg-gray-800 border-gray-700 text-white mt-1">
+                          <SelectValue placeholder="Select priority" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                          <SelectItem value="high">High</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="low">Low</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="edit-assignee" className="text-gray-300">
+                        Assignee*
+                      </Label>
+                      <Select name="assignee" defaultValue={editingTask.assignee.id}>
+                        <SelectTrigger className="bg-gray-800 border-gray-700 text-white mt-1">
+                          <SelectValue placeholder="Select assignee" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                          {users.map((user) => (
+                            <SelectItem key={user.id} value={user.id}>
+                              {user.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="edit-due-date" className="text-gray-300">
+                        Due Date*
+                      </Label>
+                      <Input
+                        id="edit-due-date"
+                        name="due-date"
+                        type="date"
+                        className="bg-gray-800 border-gray-700 text-white mt-1"
+                        defaultValue={editingTask.dueDate}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="edit-client" className="text-gray-300">
+                        Client*
+                      </Label>
+                      <Select name="client" defaultValue={editingTask.client}>
+                        <SelectTrigger className="bg-gray-800 border-gray-700 text-white mt-1">
+                          <SelectValue placeholder="Select client" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                          {clients.map((client) => (
+                            <SelectItem key={client} value={client}>
+                              {client}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="edit-project" className="text-gray-300">
+                        Project*
+                      </Label>
+                      <Select name="project" defaultValue={editingTask.project}>
+                        <SelectTrigger className="bg-gray-800 border-gray-700 text-white mt-1">
+                          <SelectValue placeholder="Select project" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                          {projects.map((project) => (
+                            <SelectItem key={project} value={project}>
+                              {project}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="edit-tags" className="text-gray-300">
+                        Tags (comma separated)
+                      </Label>
+                      <Input
+                        id="edit-tags"
+                        name="tags"
+                        placeholder="design, frontend, etc."
+                        className="bg-gray-800 border-gray-700 text-white mt-1"
+                        defaultValue={editingTask.tags.join(", ")}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="edit-hours" className="text-gray-300">
+                        Estimated Hours*
+                      </Label>
+                      <Input
+                        id="edit-hours"
+                        name="hours"
+                        type="number"
+                        placeholder="Enter hours"
+                        className="bg-gray-800 border-gray-700 text-white mt-1"
+                        defaultValue={editingTask.hours}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="edit-completed-hours" className="text-gray-300">
+                        Completed Hours
+                      </Label>
+                      <Input
+                        id="edit-completed-hours"
+                        name="completed-hours"
+                        type="number"
+                        placeholder="Enter hours"
+                        className="bg-gray-800 border-gray-700 text-white mt-1"
+                        defaultValue={editingTask.completedHours}
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setIsEditDialogOpen(false)
+                        setEditingTask(null)
+                      }}
+                      className="border-gray-700 text-gray-400 hover:text-white"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 text-white"
+                    >
+                      Update Task
+                    </Button>
+                  </DialogFooter>
+                </form>
+              )}
             </DialogContent>
           </Dialog>
         </div>
       </div>
 
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 overflow-x-auto">
-          {/* Backlog Column */}
-          <div className="bg-gray-900 rounded-xl border border-gray-800 min-w-[280px]">
-            <div className="p-4 border-b border-gray-800 bg-gray-800/50">
-              <h2 className="font-bold text-white flex items-center">
-                <span className="h-2 w-2 rounded-full bg-gray-400 mr-2"></span>
-                Backlog
-                <span className="ml-2 text-sm bg-gray-800 px-2 py-0.5 rounded-full">
-                  {getColumnTasks("backlog").length}
-                </span>
-              </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-white">Backlog</h2>
+              <Badge className="bg-gray-700 text-white">{getColumnTasks("backlog").length}</Badge>
             </div>
             <Droppable droppableId="backlog">
               {(provided) => (
                 <div
-                  ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className="p-2 min-h-[200px] max-h-[calc(100vh-250px)] overflow-y-auto"
+                  ref={provided.innerRef}
+                  className="bg-gray-900/50 rounded-lg min-h-[200px] p-3 space-y-3"
                 >
                   {getColumnTasks("backlog").map((task, index) => (
                     <Draggable key={task.id} draggableId={task.id} index={index}>
-                      {(provided, snapshot) => (
+                      {(provided) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className={`bg-gray-800 rounded-lg p-3 mb-2 border-l-4 ${
-                            task.priority === "high"
-                              ? "border-red-500"
-                              : task.priority === "medium"
-                                ? "border-amber-500"
-                                : "border-green-500"
-                          } ${snapshot.isDragging ? "shadow-lg" : ""}`}
+                          className="bg-gray-800 rounded-lg p-4 shadow-sm"
+                          onClick={() => openEditDialog(task)}
                         >
-                          <div className="flex justify-between items-start">
+                          <div className="flex justify-between items-start mb-2">
                             <h3 className="font-medium text-white">{task.title}</h3>
-                            <div className="flex">
-                              <span className={`text-xs px-2 py-0.5 rounded-full ${getPriorityStyles(task.priority)}`}>
-                                {task.priority}
-                              </span>
-                            </div>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0 text-gray-400 hover:text-white"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent className="bg-gray-900 border-gray-700 text-white">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuSeparator className="bg-gray-700" />
+                                <DropdownMenuItem
+                                  className="hover:bg-gray-800 cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    openEditDialog(task)
+                                  }}
+                                >
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  className="hover:bg-gray-800 cursor-pointer text-red-400"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    deleteTask(task.id)
+                                  }}
+                                >
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
-                          {task.description && (
-                            <p className="text-sm text-gray-400 mt-2 line-clamp-2">{task.description}</p>
-                          )}
-                          <div className="mt-3 flex flex-wrap gap-1">
-                            {task.tags?.map((tag) => (
-                              <span key={tag} className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded-full">
+                          <p className="text-gray-400 text-sm mb-3 line-clamp-2">{task.description}</p>
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            <Badge className={getPriorityColor(task.priority)}>
+                              {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+                            </Badge>
+                            {task.tags.slice(0, 2).map((tag) => (
+                              <Badge key={tag} className="bg-gray-700 text-white">
                                 {tag}
-                              </span>
+                              </Badge>
                             ))}
+                            {task.tags.length > 2 && (
+                              <Badge className="bg-gray-700 text-white">+{task.tags.length - 2}</Badge>
+                            )}
                           </div>
-                          <div className="mt-3 flex justify-between items-center text-xs text-gray-400">
-                            {task.dueDate && (
+                          <div className="flex items-center justify-between text-sm text-gray-400">
+                            <div className="flex items-center">
+                              <Avatar className="h-6 w-6 mr-2">
+                                <AvatarImage
+                                  src={task.assignee.avatar || "/placeholder.svg"}
+                                  alt={task.assignee.name}
+                                />
+                                <AvatarFallback className="bg-gray-700 text-white text-xs">
+                                  {task.assignee.name
+                                    .split(" ")
+                                    .map((n) => n[0])
+                                    .join("")}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="truncate max-w-[100px]">{task.assignee.name}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
                               <div className="flex items-center">
-                                <Clock className="h-3 w-3 mr-1" />
+                                <Calendar className="h-3 w-3 mr-1" />
                                 <span>{new Date(task.dueDate).toLocaleDateString()}</span>
                               </div>
-                            )}
-                            {task.assignee && <div>{task.assignee}</div>}
+                            </div>
+                          </div>
+                          <div className="mt-3 pt-3 border-t border-gray-700">
+                            <div className="flex justify-between items-center mb-1 text-sm">
+                              <div className="text-gray-400">
+                                Hours: {task.completedHours}/{task.hours}
+                              </div>
+                              <div className="text-white font-medium">
+                                {Math.round((task.completedHours / task.hours) * 100)}%
+                              </div>
+                            </div>
+                            <Progress value={(task.completedHours / task.hours) * 100} className="h-1" />
+                          </div>
+                          <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-700 text-gray-400 text-sm">
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center">
+                                <Paperclip className="h-3 w-3 mr-1" />
+                                <span>{task.attachments}</span>
+                              </div>
+                              <div className="flex items-center">
+                                <MessageSquare className="h-3 w-3 mr-1" />
+                                <span>{task.comments}</span>
+                              </div>
+                            </div>
+                            <div className="text-xs">{task.client}</div>
                           </div>
                         </div>
                       )}
@@ -529,135 +926,125 @@ export default function TaskBoardPage() {
             </Droppable>
           </div>
 
-          {/* To Do Column */}
-          <div className="bg-gray-900 rounded-xl border border-gray-800 min-w-[280px]">
-            <div className="p-4 border-b border-gray-800 bg-gray-800/50">
-              <h2 className="font-bold text-white flex items-center">
-                <span className="h-2 w-2 rounded-full bg-blue-400 mr-2"></span>
-                To Do
-                <span className="ml-2 text-sm bg-gray-800 px-2 py-0.5 rounded-full">
-                  {getColumnTasks("todo").length}
-                </span>
-              </h2>
-            </div>
-            <Droppable droppableId="todo">
-              {(provided) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  className="p-2 min-h-[200px] max-h-[calc(100vh-250px)] overflow-y-auto"
-                >
-                  {getColumnTasks("todo").map((task, index) => (
-                    <Draggable key={task.id} draggableId={task.id} index={index}>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          className={`bg-gray-800 rounded-lg p-3 mb-2 border-l-4 ${
-                            task.priority === "high"
-                              ? "border-red-500"
-                              : task.priority === "medium"
-                                ? "border-amber-500"
-                                : "border-green-500"
-                          } ${snapshot.isDragging ? "shadow-lg" : ""}`}
-                        >
-                          <div className="flex justify-between items-start">
-                            <h3 className="font-medium text-white">{task.title}</h3>
-                            <div className="flex">
-                              <span className={`text-xs px-2 py-0.5 rounded-full ${getPriorityStyles(task.priority)}`}>
-                                {task.priority}
-                              </span>
-                            </div>
-                          </div>
-                          {task.description && (
-                            <p className="text-sm text-gray-400 mt-2 line-clamp-2">{task.description}</p>
-                          )}
-                          <div className="mt-3 flex flex-wrap gap-1">
-                            {task.tags?.map((tag) => (
-                              <span key={tag} className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded-full">
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                          <div className="mt-3 flex justify-between items-center text-xs text-gray-400">
-                            {task.dueDate && (
-                              <div className="flex items-center">
-                                <Clock className="h-3 w-3 mr-1" />
-                                <span>{new Date(task.dueDate).toLocaleDateString()}</span>
-                              </div>
-                            )}
-                            {task.assignee && <div>{task.assignee}</div>}
-                          </div>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </div>
-
-          {/* In Progress Column */}
-          <div className="bg-gray-900 rounded-xl border border-gray-800 min-w-[280px]">
-            <div className="p-4 border-b border-gray-800 bg-gray-800/50">
-              <h2 className="font-bold text-white flex items-center">
-                <span className="h-2 w-2 rounded-full bg-purple-400 mr-2"></span>
-                In Progress
-                <span className="ml-2 text-sm bg-gray-800 px-2 py-0.5 rounded-full">
-                  {getColumnTasks("in-progress").length}
-                </span>
-              </h2>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-white">In Progress</h2>
+              <Badge className="bg-gray-700 text-white">{getColumnTasks("in-progress").length}</Badge>
             </div>
             <Droppable droppableId="in-progress">
               {(provided) => (
                 <div
-                  ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className="p-2 min-h-[200px] max-h-[calc(100vh-250px)] overflow-y-auto"
+                  ref={provided.innerRef}
+                  className="bg-gray-900/50 rounded-lg min-h-[200px] p-3 space-y-3"
                 >
                   {getColumnTasks("in-progress").map((task, index) => (
                     <Draggable key={task.id} draggableId={task.id} index={index}>
-                      {(provided, snapshot) => (
+                      {(provided) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className={`bg-gray-800 rounded-lg p-3 mb-2 border-l-4 ${
-                            task.priority === "high"
-                              ? "border-red-500"
-                              : task.priority === "medium"
-                                ? "border-amber-500"
-                                : "border-green-500"
-                          } ${snapshot.isDragging ? "shadow-lg" : ""}`}
+                          className="bg-gray-800 rounded-lg p-4 shadow-sm"
+                          onClick={() => openEditDialog(task)}
                         >
-                          <div className="flex justify-between items-start">
+                          <div className="flex justify-between items-start mb-2">
                             <h3 className="font-medium text-white">{task.title}</h3>
-                            <div className="flex">
-                              <span className={`text-xs px-2 py-0.5 rounded-full ${getPriorityStyles(task.priority)}`}>
-                                {task.priority}
-                              </span>
-                            </div>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0 text-gray-400 hover:text-white"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent className="bg-gray-900 border-gray-700 text-white">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuSeparator className="bg-gray-700" />
+                                <DropdownMenuItem
+                                  className="hover:bg-gray-800 cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    openEditDialog(task)
+                                  }}
+                                >
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  className="hover:bg-gray-800 cursor-pointer text-red-400"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    deleteTask(task.id)
+                                  }}
+                                >
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
-                          {task.description && (
-                            <p className="text-sm text-gray-400 mt-2 line-clamp-2">{task.description}</p>
-                          )}
-                          <div className="mt-3 flex flex-wrap gap-1">
-                            {task.tags?.map((tag) => (
-                              <span key={tag} className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded-full">
+                          <p className="text-gray-400 text-sm mb-3 line-clamp-2">{task.description}</p>
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            <Badge className={getPriorityColor(task.priority)}>
+                              {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+                            </Badge>
+                            {task.tags.slice(0, 2).map((tag) => (
+                              <Badge key={tag} className="bg-gray-700 text-white">
                                 {tag}
-                              </span>
+                              </Badge>
                             ))}
+                            {task.tags.length > 2 && (
+                              <Badge className="bg-gray-700 text-white">+{task.tags.length - 2}</Badge>
+                            )}
                           </div>
-                          <div className="mt-3 flex justify-between items-center text-xs text-gray-400">
-                            {task.dueDate && (
+                          <div className="flex items-center justify-between text-sm text-gray-400">
+                            <div className="flex items-center">
+                              <Avatar className="h-6 w-6 mr-2">
+                                <AvatarImage
+                                  src={task.assignee.avatar || "/placeholder.svg"}
+                                  alt={task.assignee.name}
+                                />
+                                <AvatarFallback className="bg-gray-700 text-white text-xs">
+                                  {task.assignee.name
+                                    .split(" ")
+                                    .map((n) => n[0])
+                                    .join("")}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="truncate max-w-[100px]">{task.assignee.name}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
                               <div className="flex items-center">
-                                <Clock className="h-3 w-3 mr-1" />
+                                <Calendar className="h-3 w-3 mr-1" />
                                 <span>{new Date(task.dueDate).toLocaleDateString()}</span>
                               </div>
-                            )}
-                            {task.assignee && <div>{task.assignee}</div>}
+                            </div>
+                          </div>
+                          <div className="mt-3 pt-3 border-t border-gray-700">
+                            <div className="flex justify-between items-center mb-1 text-sm">
+                              <div className="text-gray-400">
+                                Hours: {task.completedHours}/{task.hours}
+                              </div>
+                              <div className="text-white font-medium">
+                                {Math.round((task.completedHours / task.hours) * 100)}%
+                              </div>
+                            </div>
+                            <Progress value={(task.completedHours / task.hours) * 100} className="h-1" />
+                          </div>
+                          <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-700 text-gray-400 text-sm">
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center">
+                                <Paperclip className="h-3 w-3 mr-1" />
+                                <span>{task.attachments}</span>
+                              </div>
+                              <div className="flex items-center">
+                                <MessageSquare className="h-3 w-3 mr-1" />
+                                <span>{task.comments}</span>
+                              </div>
+                            </div>
+                            <div className="text-xs">{task.client}</div>
                           </div>
                         </div>
                       )}
@@ -669,135 +1056,125 @@ export default function TaskBoardPage() {
             </Droppable>
           </div>
 
-          {/* Testing Column */}
-          <div className="bg-gray-900 rounded-xl border border-gray-800 min-w-[280px]">
-            <div className="p-4 border-b border-gray-800 bg-gray-800/50">
-              <h2 className="font-bold text-white flex items-center">
-                <span className="h-2 w-2 rounded-full bg-amber-400 mr-2"></span>
-                Testing
-                <span className="ml-2 text-sm bg-gray-800 px-2 py-0.5 rounded-full">
-                  {getColumnTasks("testing").length}
-                </span>
-              </h2>
-            </div>
-            <Droppable droppableId="testing">
-              {(provided) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  className="p-2 min-h-[200px] max-h-[calc(100vh-250px)] overflow-y-auto"
-                >
-                  {getColumnTasks("testing").map((task, index) => (
-                    <Draggable key={task.id} draggableId={task.id} index={index}>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          className={`bg-gray-800 rounded-lg p-3 mb-2 border-l-4 ${
-                            task.priority === "high"
-                              ? "border-red-500"
-                              : task.priority === "medium"
-                                ? "border-amber-500"
-                                : "border-green-500"
-                          } ${snapshot.isDragging ? "shadow-lg" : ""}`}
-                        >
-                          <div className="flex justify-between items-start">
-                            <h3 className="font-medium text-white">{task.title}</h3>
-                            <div className="flex">
-                              <span className={`text-xs px-2 py-0.5 rounded-full ${getPriorityStyles(task.priority)}`}>
-                                {task.priority}
-                              </span>
-                            </div>
-                          </div>
-                          {task.description && (
-                            <p className="text-sm text-gray-400 mt-2 line-clamp-2">{task.description}</p>
-                          )}
-                          <div className="mt-3 flex flex-wrap gap-1">
-                            {task.tags?.map((tag) => (
-                              <span key={tag} className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded-full">
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                          <div className="mt-3 flex justify-between items-center text-xs text-gray-400">
-                            {task.dueDate && (
-                              <div className="flex items-center">
-                                <Clock className="h-3 w-3 mr-1" />
-                                <span>{new Date(task.dueDate).toLocaleDateString()}</span>
-                              </div>
-                            )}
-                            {task.assignee && <div>{task.assignee}</div>}
-                          </div>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </div>
-
-          {/* Done Column */}
-          <div className="bg-gray-900 rounded-xl border border-gray-800 min-w-[280px]">
-            <div className="p-4 border-b border-gray-800 bg-gray-800/50">
-              <h2 className="font-bold text-white flex items-center">
-                <span className="h-2 w-2 rounded-full bg-green-400 mr-2"></span>
-                Done
-                <span className="ml-2 text-sm bg-gray-800 px-2 py-0.5 rounded-full">
-                  {getColumnTasks("done").length}
-                </span>
-              </h2>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-white">Done</h2>
+              <Badge className="bg-gray-700 text-white">{getColumnTasks("done").length}</Badge>
             </div>
             <Droppable droppableId="done">
               {(provided) => (
                 <div
-                  ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className="p-2 min-h-[200px] max-h-[calc(100vh-250px)] overflow-y-auto"
+                  ref={provided.innerRef}
+                  className="bg-gray-900/50 rounded-lg min-h-[200px] p-3 space-y-3"
                 >
                   {getColumnTasks("done").map((task, index) => (
                     <Draggable key={task.id} draggableId={task.id} index={index}>
-                      {(provided, snapshot) => (
+                      {(provided) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className={`bg-gray-800 rounded-lg p-3 mb-2 border-l-4 ${
-                            task.priority === "high"
-                              ? "border-red-500"
-                              : task.priority === "medium"
-                                ? "border-amber-500"
-                                : "border-green-500"
-                          } ${snapshot.isDragging ? "shadow-lg" : ""}`}
+                          className="bg-gray-800 rounded-lg p-4 shadow-sm"
+                          onClick={() => openEditDialog(task)}
                         >
-                          <div className="flex justify-between items-start">
+                          <div className="flex justify-between items-start mb-2">
                             <h3 className="font-medium text-white">{task.title}</h3>
-                            <div className="flex">
-                              <span className={`text-xs px-2 py-0.5 rounded-full ${getPriorityStyles(task.priority)}`}>
-                                {task.priority}
-                              </span>
-                            </div>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0 text-gray-400 hover:text-white"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent className="bg-gray-900 border-gray-700 text-white">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuSeparator className="bg-gray-700" />
+                                <DropdownMenuItem
+                                  className="hover:bg-gray-800 cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    openEditDialog(task)
+                                  }}
+                                >
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  className="hover:bg-gray-800 cursor-pointer text-red-400"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    deleteTask(task.id)
+                                  }}
+                                >
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
-                          {task.description && (
-                            <p className="text-sm text-gray-400 mt-2 line-clamp-2">{task.description}</p>
-                          )}
-                          <div className="mt-3 flex flex-wrap gap-1">
-                            {task.tags?.map((tag) => (
-                              <span key={tag} className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded-full">
+                          <p className="text-gray-400 text-sm mb-3 line-clamp-2">{task.description}</p>
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            <Badge className={getPriorityColor(task.priority)}>
+                              {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+                            </Badge>
+                            {task.tags.slice(0, 2).map((tag) => (
+                              <Badge key={tag} className="bg-gray-700 text-white">
                                 {tag}
-                              </span>
+                              </Badge>
                             ))}
+                            {task.tags.length > 2 && (
+                              <Badge className="bg-gray-700 text-white">+{task.tags.length - 2}</Badge>
+                            )}
                           </div>
-                          <div className="mt-3 flex justify-between items-center text-xs text-gray-400">
-                            {task.dueDate && (
+                          <div className="flex items-center justify-between text-sm text-gray-400">
+                            <div className="flex items-center">
+                              <Avatar className="h-6 w-6 mr-2">
+                                <AvatarImage
+                                  src={task.assignee.avatar || "/placeholder.svg"}
+                                  alt={task.assignee.name}
+                                />
+                                <AvatarFallback className="bg-gray-700 text-white text-xs">
+                                  {task.assignee.name
+                                    .split(" ")
+                                    .map((n) => n[0])
+                                    .join("")}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="truncate max-w-[100px]">{task.assignee.name}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
                               <div className="flex items-center">
-                                <Clock className="h-3 w-3 mr-1" />
+                                <Calendar className="h-3 w-3 mr-1" />
                                 <span>{new Date(task.dueDate).toLocaleDateString()}</span>
                               </div>
-                            )}
-                            {task.assignee && <div>{task.assignee}</div>}
+                            </div>
+                          </div>
+                          <div className="mt-3 pt-3 border-t border-gray-700">
+                            <div className="flex justify-between items-center mb-1 text-sm">
+                              <div className="text-gray-400">
+                                Hours: {task.completedHours}/{task.hours}
+                              </div>
+                              <div className="text-white font-medium">
+                                {Math.round((task.completedHours / task.hours) * 100)}%
+                              </div>
+                            </div>
+                            <Progress value={(task.completedHours / task.hours) * 100} className="h-1" />
+                          </div>
+                          <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-700 text-gray-400 text-sm">
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center">
+                                <Paperclip className="h-3 w-3 mr-1" />
+                                <span>{task.attachments}</span>
+                              </div>
+                              <div className="flex items-center">
+                                <MessageSquare className="h-3 w-3 mr-1" />
+                                <span>{task.comments}</span>
+                              </div>
+                            </div>
+                            <div className="text-xs">{task.client}</div>
                           </div>
                         </div>
                       )}
