@@ -20,7 +20,6 @@ export default function Navbar() {
     { label: "Portfolio", href: "/portfolio" },
     { label: "About", href: "/about" },
     { label: "Contact", href: "/contact" },
-    { label: "Login", href: "/dashboard" },
   ]
 
   useEffect(() => {

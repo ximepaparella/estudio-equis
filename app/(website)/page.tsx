@@ -140,9 +140,9 @@ export default function Home() {
       {/* Hero Section */}
       <section ref={heroRef} className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-blac k/70 via-black/50 to-black"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black"></div>
           <Image
-            src="/img/hero-bg.png"
+            src="/placeholder.svg?height=1080&width=1920&text=Creative+Agency"
             alt="Creative background"
             fill
             className="object-cover"
