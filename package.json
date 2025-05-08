@@ -59,15 +59,15 @@
     "vaul": "^0.9.6",
     "zod": "^3.24.1",
     "@emotion/is-prop-valid": "latest",
-    "@types/hoist-non-react-statics": "latest",
     "immer": "latest",
     "use-sync-external-store": "latest",
+    "@types/hoist-non-react-statics": "latest",
     "framer-motion": "latest",
     "@hello-pangea/dnd": "latest",
+    "zustand": "latest",
     "uuid": "latest",
     "react-dnd": "latest",
-    "react-dnd-html5-backend": "latest",
-    "zustand": "latest"
+    "react-dnd-html5-backend": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",

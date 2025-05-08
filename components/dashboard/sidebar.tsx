@@ -13,7 +13,7 @@ import {
   CreditCard,
   Briefcase,
   CheckSquare,
-  Layout,
+  Globe,
 } from "lucide-react"
 
 interface SidebarLinkProps {
@@ -63,6 +63,12 @@ export default function Sidebar({ isMobile, isOpen, toggleSidebar }: SidebarProp
                 active={pathname === "/dashboard"}
               />
               <SidebarLink
+                href="/dashboard/websites"
+                icon={<Globe className="h-4 w-4" />}
+                label="Websites"
+                active={pathname.startsWith("/dashboard/websites")}
+              />
+              <SidebarLink
                 href="/dashboard/clients"
                 icon={<Users className="h-4 w-4" />}
                 label="Clients"
@@ -97,12 +103,6 @@ export default function Sidebar({ isMobile, isOpen, toggleSidebar }: SidebarProp
                 icon={<CreditCard className="h-4 w-4" />}
                 label="Finance"
                 active={pathname.startsWith("/dashboard/finance")}
-              />
-              <SidebarLink
-                href="/dashboard/web-builder"
-                icon={<Layout className="h-4 w-4" />}
-                label="Web Builder"
-                active={pathname.startsWith("/dashboard/web-builder")}
               />
               <SidebarLink
                 href="/dashboard/profile"

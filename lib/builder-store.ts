@@ -11,6 +11,8 @@ export type ComponentType =
   | "background-section"
   | "gallery"
   | "testimonial"
+  | "divider"
+  | "spacer"
 
 export interface Component {
   id: string
@@ -32,6 +34,8 @@ interface BuilderStore {
   moveComponent: (id: string, direction: "up" | "down") => void
   duplicateComponent: (id: string) => void
   setDeviceView: (view: "desktop" | "tablet" | "mobile") => void
+  loadComponents: (components: Component[]) => void
+  clearComponents: () => void
 }
 
 // Default props for each component type
@@ -41,7 +45,7 @@ const defaultProps: Record<ComponentType, Record<string, any>> = {
     subtitle: "Los mejores productos para tu hogar",
     buttonText: "Comprar Ahora",
     buttonUrl: "#",
-    backgroundImage: "",
+    backgroundImage: "/placeholder.svg?height=600&width=800",
     alignment: "center",
     textColor: "#FFFFFF",
     backgroundColor: "#111111",
@@ -60,7 +64,7 @@ const defaultProps: Record<ComponentType, Record<string, any>> = {
     size: "3xl",
   },
   button: {
-    text: "Click Here",
+    text: "Comprar Ahora",
     url: "#",
     variant: "primary",
     size: "md",
@@ -108,6 +112,15 @@ const defaultProps: Record<ComponentType, Record<string, any>> = {
     backgroundColor: "#F9FAFB",
     textColor: "#111111",
   },
+  divider: {
+    style: "solid",
+    color: "#E5E7EB",
+    thickness: 1,
+    margin: 16,
+  },
+  spacer: {
+    height: 48,
+  },
 }
 
 export const useBuilderStore = create<BuilderStore>((set) => ({
@@ -131,10 +144,20 @@ export const useBuilderStore = create<BuilderStore>((set) => ({
     }),
 
   removeComponent: (id) =>
-    set((state) => ({
-      components: state.components.filter((c) => c.id !== id),
-      selectedId: state.selectedId === id ? null : state.selectedId,
-    })),
+    set((state) => {
+      const filteredComponents = state.components.filter((c) => c.id !== id)
+
+      // Update order for all components
+      const updatedComponents = filteredComponents.map((c, index) => ({
+        ...c,
+        order: index,
+      }))
+
+      return {
+        components: updatedComponents,
+        selectedId: state.selectedId === id ? null : state.selectedId,
+      }
+    }),
 
   selectComponent: (id) => set({ selectedId: id }),
 
@@ -183,4 +206,8 @@ export const useBuilderStore = create<BuilderStore>((set) => ({
     }),
 
   setDeviceView: (deviceView) => set({ deviceView }),
+
+  loadComponents: (components) => set({ components, selectedId: null }),
+
+  clearComponents: () => set({ components: [], selectedId: null }),
 }))

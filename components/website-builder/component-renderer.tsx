@@ -1,16 +1,15 @@
 "use client"
 
-import type { Component } from "@/lib/builder-store"
+import { useBuilderStore, type Component } from "@/lib/builder-store"
 import { ChevronUp, ChevronDown, Copy, Trash } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useBuilderStore } from "@/lib/builder-store"
 
 interface ComponentRendererProps {
   component: Component
 }
 
 export function ComponentRenderer({ component }: ComponentRendererProps) {
-  const { selectedId, moveComponent, duplicateComponent, removeComponent } = useBuilderStore()
+  const { selectedId, moveComponent, duplicateComponent, removeComponent, selectComponent } = useBuilderStore()
   const { type, props, id } = component
   const isSelected = selectedId === id
 
@@ -70,7 +69,13 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
   switch (type) {
     case "hero":
       return (
-        <div className="relative">
+        <div
+          className={`relative ${isSelected ? "ring-2 ring-purple-500" : ""}`}
+          onClick={(e) => {
+            e.stopPropagation()
+            selectComponent(id)
+          }}
+        >
           {renderComponentControls()}
           <div
             className="relative py-16 px-8 bg-cover bg-center text-white"
@@ -93,7 +98,13 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 
     case "icons-section":
       return (
-        <div className="relative">
+        <div
+          className={`relative ${isSelected ? "ring-2 ring-purple-500" : ""}`}
+          onClick={(e) => {
+            e.stopPropagation()
+            selectComponent(id)
+          }}
+        >
           {renderComponentControls()}
           <div className="py-16 px-8">
             <h2 className="text-3xl font-bold text-center mb-12">{props.title || "Nuestros Servicios"}</h2>
@@ -121,7 +132,13 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
     case "heading":
       const HeadingTag = props.level || "h2"
       return (
-        <div className="relative">
+        <div
+          className={`relative ${isSelected ? "ring-2 ring-purple-500" : ""}`}
+          onClick={(e) => {
+            e.stopPropagation()
+            selectComponent(id)
+          }}
+        >
           {renderComponentControls()}
           <div className="py-4 px-8">
             <HeadingTag
@@ -131,7 +148,7 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
                 textAlign: props.alignment || ("left" as any),
               }}
             >
-              {props.text || "Section Heading"}
+              {props.text || "Nuestros Servicios"}
             </HeadingTag>
           </div>
         </div>
@@ -139,7 +156,13 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 
     case "paragraph":
       return (
-        <div className="relative">
+        <div
+          className={`relative ${isSelected ? "ring-2 ring-purple-500" : ""}`}
+          onClick={(e) => {
+            e.stopPropagation()
+            selectComponent(id)
+          }}
+        >
           {renderComponentControls()}
           <div className="py-4 px-8">
             <p
@@ -149,7 +172,8 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
                 textAlign: props.alignment || ("left" as any),
               }}
             >
-              {props.text || "This is a paragraph of text. You can edit this text to add your own content."}
+              {props.text ||
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, quis aliquam nisl nunc eu nisl."}
             </p>
           </div>
         </div>
@@ -181,7 +205,13 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
       }
 
       return (
-        <div className="relative">
+        <div
+          className={`relative ${isSelected ? "ring-2 ring-purple-500" : ""}`}
+          onClick={(e) => {
+            e.stopPropagation()
+            selectComponent(id)
+          }}
+        >
           {renderComponentControls()}
           <div
             className="py-4 px-8 flex"
@@ -194,7 +224,7 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
               className={`${getButtonStyle()} ${getButtonSize()} font-bold rounded`}
               onClick={(e) => e.stopPropagation()}
             >
-              {props.text || "Click Me"}
+              {props.text || "Comprar Ahora"}
             </button>
           </div>
         </div>
@@ -202,7 +232,13 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 
     case "image":
       return (
-        <div className="relative">
+        <div
+          className={`relative ${isSelected ? "ring-2 ring-purple-500" : ""}`}
+          onClick={(e) => {
+            e.stopPropagation()
+            selectComponent(id)
+          }}
+        >
           {renderComponentControls()}
           <div
             className="py-4 px-8 flex"
@@ -212,7 +248,7 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
             }}
           >
             <img
-              src={props.src || "/placeholder.svg?height=400&width=600"}
+              src={props.src || "/placeholder.svg?height=300&width=500"}
               alt={props.alt || "Image"}
               style={{
                 width: props.width || "100%",
@@ -224,9 +260,52 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
         </div>
       )
 
+    case "divider":
+      return (
+        <div
+          className={`relative ${isSelected ? "ring-2 ring-purple-500" : ""}`}
+          onClick={(e) => {
+            e.stopPropagation()
+            selectComponent(id)
+          }}
+        >
+          {renderComponentControls()}
+          <div className="py-4 px-8">
+            <hr
+              style={{
+                borderStyle: props.style || "solid",
+                borderColor: props.color || "#E5E7EB",
+                borderWidth: `${props.thickness || 1}px 0 0 0`,
+                margin: `${props.margin || 16}px 0`,
+              }}
+            />
+          </div>
+        </div>
+      )
+
+    case "spacer":
+      return (
+        <div
+          className={`relative ${isSelected ? "ring-2 ring-purple-500" : ""}`}
+          onClick={(e) => {
+            e.stopPropagation()
+            selectComponent(id)
+          }}
+        >
+          {renderComponentControls()}
+          <div className="px-8" style={{ height: `${props.height || 48}px` }}></div>
+        </div>
+      )
+
     default:
       return (
-        <div className="relative">
+        <div
+          className={`relative ${isSelected ? "ring-2 ring-purple-500" : ""}`}
+          onClick={(e) => {
+            e.stopPropagation()
+            selectComponent(id)
+          }}
+        >
           {renderComponentControls()}
           <div className="p-8 border border-dashed border-gray-300 text-center">
             <p className="text-gray-500">Unknown component: {type}</p>

@@ -4,95 +4,109 @@ import { useState } from "react"
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { ModuleCard } from "./module-card"
+import { ComponentCard } from "./component-card"
 import type { ComponentType } from "@/lib/builder-store"
 
 export function ComponentsSidebar() {
   const [searchQuery, setSearchQuery] = useState("")
   const [activeCategory, setActiveCategory] = useState("all")
 
-  const moduleTypes: { id: ComponentType; title: string; description: string; icon: string; category: string }[] = [
+  const componentTypes: { id: ComponentType; title: string; description: string; icon: string; category: string }[] = [
     {
       id: "hero",
-      title: "Hero with Title and Image",
-      description: "Main featured section",
+      title: "Hero con título e imagen",
+      description: "Sección principal con título",
       icon: "Layers",
       category: "sections",
     },
     {
       id: "icons-section",
-      title: "Icons Section",
-      description: "Display features or services",
+      title: "Sección con iconos y texto",
+      description: "Muestra características o servicios",
       icon: "Layers",
       category: "sections",
     },
     {
       id: "background-section",
-      title: "Background Section",
-      description: "Section with custom background",
+      title: "Sección con fondo",
+      description: "Sección con fondo personalizado",
       icon: "Layers",
       category: "sections",
     },
     {
       id: "heading",
-      title: "Heading",
-      description: "Section title or heading",
+      title: "Encabezado",
+      description: "Título o encabezado de sección",
       icon: "Type",
       category: "basics",
     },
     {
       id: "paragraph",
-      title: "Paragraph",
-      description: "Text block",
+      title: "Párrafo",
+      description: "Bloque de texto",
       icon: "Type",
       category: "basics",
     },
     {
       id: "button",
-      title: "Button",
-      description: "Clickable button",
+      title: "Botón",
+      description: "Botón con diferentes estilos",
       icon: "Square",
       category: "basics",
     },
     {
       id: "image",
-      title: "Image",
-      description: "Single image",
+      title: "Imagen",
+      description: "Imagen con opciones",
       icon: "Image",
       category: "media",
     },
     {
       id: "gallery",
-      title: "Gallery",
-      description: "Collection of images",
+      title: "Galería",
+      description: "Colección de imágenes",
       icon: "Grid",
       category: "media",
     },
     {
       id: "testimonial",
       title: "Testimonial",
-      description: "Customer quote",
+      description: "Cita de cliente",
       icon: "MessageSquare",
       category: "content",
     },
+    {
+      id: "divider",
+      title: "Divisor",
+      description: "Línea divisoria",
+      icon: "Minus",
+      category: "basics",
+    },
+    {
+      id: "spacer",
+      title: "Espaciador",
+      description: "Espacio vertical entre elementos",
+      icon: "ArrowUpDown",
+      category: "basics",
+    },
   ]
 
-  const filteredModules = moduleTypes.filter(
-    (module) =>
-      (activeCategory === "all" || module.category === activeCategory) &&
+  const filteredComponents = componentTypes.filter(
+    (component) =>
+      (activeCategory === "all" || component.category === activeCategory) &&
       (searchQuery === "" ||
-        module.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        module.description.toLowerCase().includes(searchQuery.toLowerCase())),
+        component.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        component.description.toLowerCase().includes(searchQuery.toLowerCase())),
   )
 
   return (
-    <div className="w-64 border-r border-gray-800 bg-gray-900 flex flex-col">
+    <div className="w-full h-full flex flex-col bg-gray-900 border-r border-gray-800">
       <div className="p-4 border-b border-gray-800">
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
           <Input
             type="search"
-            placeholder="Search components..."
+            placeholder="Buscar componentes..."
             className="pl-8 bg-gray-800 border-gray-700 text-white"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -108,7 +122,7 @@ export function ComponentsSidebar() {
           }`}
           onClick={() => setActiveCategory("all")}
         >
-          All
+          Todos
         </Button>
         <Button
           variant="ghost"
@@ -117,7 +131,7 @@ export function ComponentsSidebar() {
           }`}
           onClick={() => setActiveCategory("sections")}
         >
-          Sections
+          Secciones
         </Button>
         <Button
           variant="ghost"
@@ -126,32 +140,34 @@ export function ComponentsSidebar() {
           }`}
           onClick={() => setActiveCategory("basics")}
         >
-          Basics
+          Básicos
         </Button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-white">Components</h3>
+          <h3 className="text-sm font-medium text-white">Componentes</h3>
           <span className="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded-full">
-            {filteredModules.length} items
+            {filteredComponents.length} items
           </span>
         </div>
 
-        {filteredModules.length === 0 ? (
+        {filteredComponents.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-400">No components found</p>
+            <p className="text-gray-400">No se encontraron componentes</p>
           </div>
         ) : (
-          filteredModules.map((module) => (
-            <ModuleCard
-              key={module.id}
-              id={module.id}
-              title={module.title}
-              description={module.description}
-              icon={module.icon}
-            />
-          ))
+          <div className="space-y-3">
+            {filteredComponents.map((component) => (
+              <ComponentCard
+                key={component.id}
+                type={component.id}
+                title={component.title}
+                description={component.description}
+                icon={component.icon}
+              />
+            ))}
+          </div>
         )}
       </div>
     </div>
