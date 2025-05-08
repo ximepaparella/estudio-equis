@@ -1,49 +1,60 @@
 "use client"
 
+import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Monitor, Tablet, Smartphone, Save, Eye, ChevronLeft, ChevronRight } from "lucide-react"
+import { ArrowLeft, ArrowRight, ComputerIcon as Desktop, Tablet, Smartphone, Save, Eye, History } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useBuilderStore } from "@/lib/builder-store"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
-interface BuilderHeaderProps {
-  websiteName: string
-  websiteId: string
-}
-
-export function BuilderHeader({ websiteName, websiteId }: BuilderHeaderProps) {
+export function BuilderHeader() {
   const router = useRouter()
-  const { deviceView, setDeviceView } = useBuilderStore()
+  const { deviceView, setDeviceView, saveHistory, undo, redo } = useBuilderStore()
+  const [isSaving, setIsSaving] = useState(false)
+
+  const handleSave = async () => {
+    setIsSaving(true)
+    // Simulate saving
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    setIsSaving(false)
+    saveHistory()
+  }
+
+  const handlePreview = () => {
+    // Implement preview functionality
+    window.open("/preview", "_blank")
+  }
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-gray-800 bg-gray-900 px-4">
-      <div className="flex items-center">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="mr-2 text-gray-400 hover:text-white"
-          onClick={() => router.push("/dashboard/websites")}
-        >
-          <ArrowLeft className="h-5 w-5" />
+    <div className="h-16 border-b border-gray-800 bg-gray-900 flex items-center justify-between px-4">
+      <div className="flex items-center space-x-4">
+        <Button variant="outline" size="icon" onClick={() => router.back()}>
+          <ArrowLeft className="h-4 w-4" />
         </Button>
-        <div className="flex items-center">
-          <span className="text-sm font-medium text-white">{websiteName}</span>
-        </div>
+        <h1 className="text-lg font-medium text-white">Editor de Sitio Web</h1>
       </div>
 
       <div className="flex items-center space-x-2">
-        <div className="flex items-center rounded-md border border-gray-700 bg-gray-800 p-1">
+        <div className="bg-gray-800 rounded-md p-1 flex">
           <Button
             variant="ghost"
             size="icon"
-            className={`h-8 w-8 ${deviceView === "desktop" ? "bg-gray-700 text-white" : "text-gray-400"}`}
+            className={`${deviceView === "desktop" ? "bg-gray-700" : ""}`}
             onClick={() => setDeviceView("desktop")}
           >
-            <Monitor className="h-4 w-4" />
+            <Desktop className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className={`h-8 w-8 ${deviceView === "tablet" ? "bg-gray-700 text-white" : "text-gray-400"}`}
+            className={`${deviceView === "tablet" ? "bg-gray-700" : ""}`}
             onClick={() => setDeviceView("tablet")}
           >
             <Tablet className="h-4 w-4" />
@@ -51,38 +62,59 @@ export function BuilderHeader({ websiteName, websiteId }: BuilderHeaderProps) {
           <Button
             variant="ghost"
             size="icon"
-            className={`h-8 w-8 ${deviceView === "mobile" ? "bg-gray-700 text-white" : "text-gray-400"}`}
+            className={`${deviceView === "mobile" ? "bg-gray-700" : ""}`}
             onClick={() => setDeviceView("mobile")}
           >
             <Smartphone className="h-4 w-4" />
           </Button>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm" className="text-gray-300 border-gray-700">
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Anterior
-          </Button>
-          <Button variant="outline" size="sm" className="text-gray-300 border-gray-700">
-            Siguiente
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon">
+              <History className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>Historial</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={undo}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              <span>Deshacer</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={redo}>
+              <ArrowRight className="mr-2 h-4 w-4" />
+              <span>Rehacer</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <span>Versión 1 - Hace 5 minutos</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <span>Versión 2 - Hace 10 minutos</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <span>Versión 3 - Hace 15 minutos</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm" className="text-gray-300 border-gray-700">
-            <Save className="h-4 w-4 mr-2" />
-            Guardar
-          </Button>
-          <Button variant="outline" size="sm" className="text-gray-300 border-gray-700">
-            <Eye className="h-4 w-4 mr-2" />
-            Vista previa
-          </Button>
-          <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
-            Publicar
-          </Button>
-        </div>
+        <Button variant="outline" size="icon" onClick={undo}>
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="icon" onClick={redo}>
+          <ArrowRight className="h-4 w-4" />
+        </Button>
+
+        <Button variant="outline" onClick={handlePreview}>
+          <Eye className="mr-2 h-4 w-4" />
+          <span>Vista previa</span>
+        </Button>
+        <Button onClick={handleSave} disabled={isSaving}>
+          <Save className="mr-2 h-4 w-4" />
+          <span>{isSaving ? "Guardando..." : "Guardar"}</span>
+        </Button>
       </div>
-    </header>
+    </div>
   )
 }

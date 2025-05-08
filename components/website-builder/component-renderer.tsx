@@ -1,17 +1,55 @@
 "use client"
 
+import type React from "react"
+
 import { useBuilderStore, type Component } from "@/lib/builder-store"
 import { ChevronUp, ChevronDown, Copy, Trash } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useDrop } from "react-dnd"
+import type { ComponentType } from "@/lib/builder-store"
 
 interface ComponentRendererProps {
   component: Component
+  isNested?: boolean
 }
 
-export function ComponentRenderer({ component }: ComponentRendererProps) {
-  const { selectedId, moveComponent, duplicateComponent, removeComponent, selectComponent } = useBuilderStore()
-  const { type, props, id } = component
+export function ComponentRenderer({ component, isNested = false }: ComponentRendererProps) {
+  const {
+    components,
+    selectedId,
+    moveComponent,
+    duplicateComponent,
+    removeComponent,
+    selectComponent,
+    moveComponentToContainer,
+    updateComponent,
+    addComponent,
+  } = useBuilderStore()
+
+  const { type, props, id, children } = component
   const isSelected = selectedId === id
+  const childComponents = children
+    ? components.filter((c) => children.includes(c.id)).sort((a, b) => a.order - b.order)
+    : []
+
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: "COMPONENT",
+    drop: (item: { type: string; id?: string }, monitor) => {
+      // Only handle drop if this is the direct target (not a child)
+      if (!monitor.didDrop() && ["container", "section", "columns"].includes(type)) {
+        if (item.id) {
+          // Moving an existing component
+          moveComponentToContainer(item.id, id)
+        } else {
+          // Adding a new component
+          // This is handled by the Canvas component
+        }
+      }
+    },
+    collect: (monitor) => ({
+      isOver: !!monitor.isOver({ shallow: true }),
+    }),
+  }))
 
   const renderComponentControls = () => {
     if (!isSelected) return null
@@ -66,7 +104,154 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
     )
   }
 
+  const getComponentStyles = () => {
+    const styles: React.CSSProperties = {}
+
+    // Apply padding
+    if (props.paddingTop !== undefined) styles.paddingTop = `${props.paddingTop}px`
+    if (props.paddingRight !== undefined) styles.paddingRight = `${props.paddingRight}px`
+    if (props.paddingBottom !== undefined) styles.paddingBottom = `${props.paddingBottom}px`
+    if (props.paddingLeft !== undefined) styles.paddingLeft = `${props.paddingLeft}px`
+
+    // Apply margin
+    if (props.marginTop !== undefined) styles.marginTop = `${props.marginTop}px`
+    if (props.marginBottom !== undefined) styles.marginBottom = `${props.marginBottom}px`
+
+    // Apply border radius
+    if (props.borderRadius !== undefined) styles.borderRadius = `${props.borderRadius}px`
+
+    // Apply background color
+    if (props.backgroundColor) styles.backgroundColor = props.backgroundColor
+
+    return styles
+  }
+
+  const renderChildren = () => {
+    if (!children || childComponents.length === 0) {
+      return (
+        <div className="min-h-[50px] flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-4">
+          <p className="text-gray-500 text-sm">Arrastra componentes aquí</p>
+        </div>
+      )
+    }
+
+    return childComponents.map((child) => <ComponentRenderer key={child.id} component={child} isNested={true} />)
+  }
+
+  const Column = ({ columnIndex, parentId }: { columnIndex: number; parentId: string }) => {
+    const columnChildren = childComponents.filter((child) => child.props.columnIndex === columnIndex)
+
+    const [{ isColumnOver }, columnDrop] = useDrop(() => ({
+      accept: "COMPONENT",
+      drop: (item: { type: string; id?: string }) => {
+        if (item.id) {
+          // Update the existing component to have this column index
+          const component = components.find((c) => c.id === item.id)
+          if (component) {
+            moveComponentToContainer(item.id, parentId)
+            // Update the column index
+            const updatedProps = { ...component.props, columnIndex: columnIndex }
+            updateComponent(item.id, updatedProps)
+          }
+        } else {
+          // Add a new component to this column
+          addComponent(item.type as ComponentType, parentId)
+          // The new component will be the last one added
+          const newComponent = components[components.length - 1]
+          if (newComponent) {
+            // Update its column index
+            updateComponent(newComponent.id, { columnIndex: columnIndex })
+          }
+        }
+      },
+      collect: (monitor) => ({
+        isColumnOver: !!monitor.isOver({ shallow: true }),
+      }),
+    }))
+
+    return (
+      <div
+        key={columnIndex}
+        ref={columnDrop}
+        className={`min-h-[100px] border-2 border-dashed ${
+          isColumnOver ? "border-purple-500 bg-purple-50" : "border-gray-300"
+        } rounded-lg p-2`}
+        onClick={(e) => {
+          e.stopPropagation()
+        }}
+      >
+        {columnChildren.length > 0 ? (
+          columnChildren.map((child) => <ComponentRenderer key={child.id} component={child} isNested={true} />)
+        ) : (
+          <div className="h-full flex items-center justify-center">
+            <p className="text-gray-500 text-sm">Columna {columnIndex + 1}</p>
+          </div>
+        )}
+      </div>
+    )
+  }
+
   switch (type) {
+    case "container":
+      return (
+        <div
+          ref={drop}
+          className={`relative ${isSelected ? "ring-2 ring-purple-500" : ""} ${isOver ? "ring-2 ring-blue-500" : ""}`}
+          style={getComponentStyles()}
+          onClick={(e) => {
+            e.stopPropagation()
+            selectComponent(id)
+          }}
+        >
+          {renderComponentControls()}
+          <div className="p-4">{renderChildren()}</div>
+        </div>
+      )
+
+    case "section":
+      return (
+        <div
+          ref={drop}
+          className={`relative ${isSelected ? "ring-2 ring-purple-500" : ""} ${isOver ? "ring-2 ring-blue-500" : ""}`}
+          style={getComponentStyles()}
+          onClick={(e) => {
+            e.stopPropagation()
+            selectComponent(id)
+          }}
+        >
+          {renderComponentControls()}
+          <div className={`${props.fullWidth ? "w-full" : "container mx-auto"}`}>{renderChildren()}</div>
+        </div>
+      )
+
+    case "columns":
+      const columnCount = props.columnCount || 2
+      const gap = props.gap || 16
+
+      return (
+        <div
+          className={`relative ${isSelected ? "ring-2 ring-purple-500" : ""} ${isOver ? "ring-2 ring-blue-500" : ""}`}
+          style={getComponentStyles()}
+          onClick={(e) => {
+            e.stopPropagation()
+            selectComponent(id)
+          }}
+        >
+          {renderComponentControls()}
+          <div
+            className="grid"
+            style={{
+              gridTemplateColumns: `repeat(${columnCount}, 1fr)`,
+              gap: `${gap}px`,
+            }}
+          >
+            {Array.from({ length: columnCount }).map((_, i) => (
+              <Column key={i} columnIndex={i} parentId={id} />
+            ))}
+          </div>
+        </div>
+      )
+
     case "hero":
       return (
         <div
@@ -75,6 +260,7 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
             e.stopPropagation()
             selectComponent(id)
           }}
+          style={getComponentStyles()}
         >
           {renderComponentControls()}
           <div
@@ -83,6 +269,7 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
               backgroundImage: props.backgroundImage
                 ? `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${props.backgroundImage})`
                 : "linear-gradient(to right, #4F46E5, #7C3AED)",
+              color: props.textColor || "#FFFFFF",
             }}
           >
             <div className="max-w-3xl mx-auto text-center">
@@ -104,10 +291,13 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
             e.stopPropagation()
             selectComponent(id)
           }}
+          style={getComponentStyles()}
         >
           {renderComponentControls()}
-          <div className="py-16 px-8">
-            <h2 className="text-3xl font-bold text-center mb-12">{props.title || "Nuestros Servicios"}</h2>
+          <div className="py-16 px-8" style={{ backgroundColor: props.backgroundColor || "#FFFFFF" }}>
+            <h2 className="text-3xl font-bold text-center mb-12" style={{ color: props.textColor || "#111111" }}>
+              {props.title || "Nuestros Servicios"}
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {(
                 props.items || [
@@ -120,7 +310,9 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
                   <div className="inline-flex items-center justify-center p-3 bg-purple-100 rounded-full mb-4">
                     <div className="w-6 h-6 bg-purple-500 rounded-md"></div>
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+                  <h3 className="text-lg font-semibold mb-2" style={{ color: props.textColor || "#111111" }}>
+                    {item.title}
+                  </h3>
                   <p className="text-gray-600">{item.description}</p>
                 </div>
               ))}
@@ -138,6 +330,7 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
             e.stopPropagation()
             selectComponent(id)
           }}
+          style={getComponentStyles()}
         >
           {renderComponentControls()}
           <div className="py-4 px-8">
@@ -162,6 +355,7 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
             e.stopPropagation()
             selectComponent(id)
           }}
+          style={getComponentStyles()}
         >
           {renderComponentControls()}
           <div className="py-4 px-8">
@@ -211,6 +405,7 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
             e.stopPropagation()
             selectComponent(id)
           }}
+          style={getComponentStyles()}
         >
           {renderComponentControls()}
           <div
@@ -238,6 +433,7 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
             e.stopPropagation()
             selectComponent(id)
           }}
+          style={getComponentStyles()}
         >
           {renderComponentControls()}
           <div
@@ -268,6 +464,7 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
             e.stopPropagation()
             selectComponent(id)
           }}
+          style={getComponentStyles()}
         >
           {renderComponentControls()}
           <div className="py-4 px-8">
@@ -291,6 +488,7 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
             e.stopPropagation()
             selectComponent(id)
           }}
+          style={getComponentStyles()}
         >
           {renderComponentControls()}
           <div className="px-8" style={{ height: `${props.height || 48}px` }}></div>
@@ -305,6 +503,7 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
             e.stopPropagation()
             selectComponent(id)
           }}
+          style={getComponentStyles()}
         >
           {renderComponentControls()}
           <div className="p-8 border border-dashed border-gray-300 text-center">

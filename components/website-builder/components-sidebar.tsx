@@ -3,173 +3,202 @@
 import { useState } from "react"
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ComponentCard } from "./component-card"
 import type { ComponentType } from "@/lib/builder-store"
 
 export function ComponentsSidebar() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [activeCategory, setActiveCategory] = useState("all")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [activeTab, setActiveTab] = useState("layout")
 
-  const componentTypes: { id: ComponentType; title: string; description: string; icon: string; category: string }[] = [
+  const layoutComponents: { type: ComponentType; name: string; description: string; icon: string }[] = [
     {
-      id: "hero",
-      title: "Hero con título e imagen",
-      description: "Sección principal con título",
-      icon: "Layers",
-      category: "sections",
+      type: "section",
+      name: "Sección",
+      description: "Contenedor de ancho completo",
+      icon: "Layout",
     },
     {
-      id: "icons-section",
-      title: "Sección con iconos y texto",
-      description: "Muestra características o servicios",
-      icon: "Layers",
-      category: "sections",
+      type: "container",
+      name: "Contenedor",
+      description: "Contenedor con ancho máximo",
+      icon: "Box",
     },
     {
-      id: "background-section",
-      title: "Sección con fondo",
-      description: "Sección con fondo personalizado",
-      icon: "Layers",
-      category: "sections",
-    },
-    {
-      id: "heading",
-      title: "Encabezado",
-      description: "Título o encabezado de sección",
-      icon: "Type",
-      category: "basics",
-    },
-    {
-      id: "paragraph",
-      title: "Párrafo",
-      description: "Bloque de texto",
-      icon: "Type",
-      category: "basics",
-    },
-    {
-      id: "button",
-      title: "Botón",
-      description: "Botón con diferentes estilos",
-      icon: "Square",
-      category: "basics",
-    },
-    {
-      id: "image",
-      title: "Imagen",
-      description: "Imagen con opciones",
-      icon: "Image",
-      category: "media",
-    },
-    {
-      id: "gallery",
-      title: "Galería",
-      description: "Colección de imágenes",
-      icon: "Grid",
-      category: "media",
-    },
-    {
-      id: "testimonial",
-      title: "Testimonial",
-      description: "Cita de cliente",
-      icon: "MessageSquare",
-      category: "content",
-    },
-    {
-      id: "divider",
-      title: "Divisor",
-      description: "Línea divisoria",
-      icon: "Minus",
-      category: "basics",
-    },
-    {
-      id: "spacer",
-      title: "Espaciador",
-      description: "Espacio vertical entre elementos",
-      icon: "ArrowUpDown",
-      category: "basics",
+      type: "columns",
+      name: "Columnas",
+      description: "Diseño en columnas",
+      icon: "Columns",
     },
   ]
 
-  const filteredComponents = componentTypes.filter(
-    (component) =>
-      (activeCategory === "all" || component.category === activeCategory) &&
-      (searchQuery === "" ||
-        component.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        component.description.toLowerCase().includes(searchQuery.toLowerCase())),
-  )
+  const basicComponents: { type: ComponentType; name: string; description: string; icon: string }[] = [
+    {
+      type: "heading",
+      name: "Encabezado",
+      description: "Título o subtítulo",
+      icon: "Heading",
+    },
+    {
+      type: "paragraph",
+      name: "Párrafo",
+      description: "Bloque de texto",
+      icon: "Text",
+    },
+    {
+      type: "button",
+      name: "Botón",
+      description: "Botón de acción",
+      icon: "MousePointer",
+    },
+    {
+      type: "image",
+      name: "Imagen",
+      description: "Imagen o foto",
+      icon: "Image",
+    },
+    {
+      type: "divider",
+      name: "Divisor",
+      description: "Línea horizontal",
+      icon: "Minus",
+    },
+    {
+      type: "spacer",
+      name: "Espaciador",
+      description: "Espacio vertical",
+      icon: "ArrowUpDown",
+    },
+  ]
+
+  const advancedComponents: { type: ComponentType; name: string; description: string; icon: string }[] = [
+    {
+      type: "hero",
+      name: "Hero",
+      description: "Sección principal con imagen de fondo",
+      icon: "Layout",
+    },
+    {
+      type: "icons-section",
+      name: "Sección de iconos",
+      description: "Cuadrícula de iconos con texto",
+      icon: "Grid",
+    },
+    {
+      type: "pricing",
+      name: "Precios",
+      description: "Tabla de precios",
+      icon: "DollarSign",
+    },
+    {
+      type: "features",
+      name: "Características",
+      description: "Lista de características",
+      icon: "CheckSquare",
+    },
+    {
+      type: "testimonials",
+      name: "Testimonios",
+      description: "Opiniones de clientes",
+      icon: "MessageSquare",
+    },
+    {
+      type: "cta",
+      name: "Llamada a la acción",
+      description: "Sección de conversión",
+      icon: "Zap",
+    },
+    {
+      type: "form",
+      name: "Formulario",
+      description: "Formulario de contacto",
+      icon: "FileText",
+    },
+  ]
+
+  const filterComponents = (components: any[]) => {
+    if (!searchTerm) return components
+    return components.filter(
+      (component) =>
+        component.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        component.description.toLowerCase().includes(searchTerm.toLowerCase()),
+    )
+  }
 
   return (
-    <div className="w-full h-full flex flex-col bg-gray-900 border-r border-gray-800">
+    <div className="w-64 h-full flex flex-col bg-gray-900 border-r border-gray-800">
       <div className="p-4 border-b border-gray-800">
+        <h2 className="text-lg font-medium text-white mb-2">Componentes</h2>
         <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
-            type="search"
+            type="text"
             placeholder="Buscar componentes..."
             className="pl-8 bg-gray-800 border-gray-700 text-white"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
 
-      <div className="flex border-b border-gray-800">
-        <Button
-          variant="ghost"
-          className={`flex-1 rounded-none ${
-            activeCategory === "all" ? "text-white border-b-2 border-purple-500" : "text-gray-400"
-          }`}
-          onClick={() => setActiveCategory("all")}
-        >
-          Todos
-        </Button>
-        <Button
-          variant="ghost"
-          className={`flex-1 rounded-none ${
-            activeCategory === "sections" ? "text-white border-b-2 border-purple-500" : "text-gray-400"
-          }`}
-          onClick={() => setActiveCategory("sections")}
-        >
-          Secciones
-        </Button>
-        <Button
-          variant="ghost"
-          className={`flex-1 rounded-none ${
-            activeCategory === "basics" ? "text-white border-b-2 border-purple-500" : "text-gray-400"
-          }`}
-          onClick={() => setActiveCategory("basics")}
-        >
-          Básicos
-        </Button>
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+        <TabsList className="bg-gray-900 border-b border-gray-800 p-0 h-auto">
+          <TabsTrigger
+            value="layout"
+            className="data-[state=active]:bg-transparent data-[state=active]:text-purple-400 data-[state=active]:border-b-2 data-[state=active]:border-purple-400 rounded-none px-4 py-2 text-gray-400"
+          >
+            Layout
+          </TabsTrigger>
+          <TabsTrigger
+            value="basic"
+            className="data-[state=active]:bg-transparent data-[state=active]:text-purple-400 data-[state=active]:border-b-2 data-[state=active]:border-purple-400 rounded-none px-4 py-2 text-gray-400"
+          >
+            Básico
+          </TabsTrigger>
+          <TabsTrigger
+            value="advanced"
+            className="data-[state=active]:bg-transparent data-[state=active]:text-purple-400 data-[state=active]:border-b-2 data-[state=active]:border-purple-400 rounded-none px-4 py-2 text-gray-400"
+          >
+            Avanzado
+          </TabsTrigger>
+        </TabsList>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-white">Componentes</h3>
-          <span className="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded-full">
-            {filteredComponents.length} items
-          </span>
-        </div>
+        <TabsContent value="layout" className="flex-1 p-4 space-y-2 overflow-y-auto">
+          {filterComponents(layoutComponents).map((component) => (
+            <ComponentCard
+              key={component.type}
+              type={component.type}
+              name={component.name}
+              description={component.description}
+              icon={component.icon}
+            />
+          ))}
+        </TabsContent>
 
-        {filteredComponents.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-gray-400">No se encontraron componentes</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {filteredComponents.map((component) => (
-              <ComponentCard
-                key={component.id}
-                type={component.id}
-                title={component.title}
-                description={component.description}
-                icon={component.icon}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+        <TabsContent value="basic" className="flex-1 p-4 space-y-2 overflow-y-auto">
+          {filterComponents(basicComponents).map((component) => (
+            <ComponentCard
+              key={component.type}
+              type={component.type}
+              name={component.name}
+              description={component.description}
+              icon={component.icon}
+            />
+          ))}
+        </TabsContent>
+
+        <TabsContent value="advanced" className="flex-1 p-4 space-y-2 overflow-y-auto">
+          {filterComponents(advancedComponents).map((component) => (
+            <ComponentCard
+              key={component.type}
+              type={component.type}
+              name={component.name}
+              description={component.description}
+              icon={component.icon}
+            />
+          ))}
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

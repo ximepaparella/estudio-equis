@@ -3,43 +3,38 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
+import { Menu } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import Sidebar from "@/components/dashboard/sidebar"
 import Header from "@/components/dashboard/header"
 import { useMobile } from "@/hooks/use-mobile"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const isMobile = useMobile()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
-  // Close sidebar when switching to desktop view
   useEffect(() => {
     if (!isMobile) {
-      setSidebarOpen(false)
+      setIsSidebarOpen(false)
     }
   }, [isMobile])
 
   const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen)
+    setIsSidebarOpen(!isSidebarOpen)
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex">
-      <Sidebar isMobile={isMobile} isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-
-      <div className="flex-1 flex flex-col min-h-screen">
-        <Header toggleSidebar={toggleSidebar} />
-
-        <main className="flex-1 bg-black">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="p-4 md:p-6"
-          >
-            {children}
-          </motion.div>
-        </main>
+    <div className="flex min-h-screen bg-gray-100 dark:bg-gray-950">
+      <Sidebar isMobile={isMobile} isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <Header>
+          {isMobile && (
+            <Button variant="ghost" size="icon" className="mr-2" onClick={toggleSidebar} aria-label="Toggle sidebar">
+              <Menu className="h-5 w-5" />
+            </Button>
+          )}
+        </Header>
+        <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
   )
