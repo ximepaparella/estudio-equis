@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
 import Image from "next/image"
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import {
@@ -15,19 +15,32 @@ import {
   X,
   Plus,
   ArrowRight,
+  ChevronDown,
+  Zap,
+  ArrowUpRight,
+  Star,
+  Play,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import ServiceCard from "@/components/service-card"
 import ContactCTA from "@/components/contact-cta"
+import { TestimonialCard } from "@/components/testimonials/TestimonialCard"
+import { testimonials } from "@/data/testimonials"
 
 export default function ServicesPage() {
   const { scrollY } = useScroll()
   const [selectedService, setSelectedService] = useState<number | null>(null)
+  const [activeTestimonial, setActiveTestimonial] = useState(0)
 
   const servicesRef = useRef<HTMLDivElement>(null)
   const processRef = useRef<HTMLDivElement>(null)
+  const testimonialsRef = useRef<HTMLDivElement>(null)
 
   const servicesInView = useInView(servicesRef, { once: true, amount: 0.1 })
   const processInView = useInView(processRef, { once: true, amount: 0.1 })
+  const testimonialsInView = useInView(testimonialsRef, { once: true, amount: 0.2 })
 
   const services = [
     {
@@ -625,63 +638,86 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Testimonials Carousel */}
-      <section className="py-20 px-4 md:px-8 bg-black relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-purple-900/10 to-transparent"></div>
-          <div className="absolute bottom-0 right-0 w-full h-full bg-gradient-to-t from-pink-900/10 to-transparent"></div>
-        </div>
-
+      {/* Testimonials Carousel - Copied from Homepage */}
+      <section ref={testimonialsRef} className="py-20 px-4 md:px-8 bg-black relative">
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Client{" "}
+            <div className="inline-block">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={testimonialsInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.5 }}
+                className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 px-4 py-1 rounded-full text-sm text-purple-300 mb-4 inline-block"
+              >
+                TESTIMONIALS
+              </motion.div>
+            </div>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={testimonialsInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="text-4xl md:text-6xl font-bold mb-6"
+            >
+              What Our{" "}
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500">
-                Success Stories
+                Clients Say
               </span>
-            </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              See how our services have helped businesses achieve their goals
-            </p>
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={testimonialsInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-xl text-gray-400 max-w-3xl mx-auto"
+            >
+              Don't just take our word for it - hear from some of our satisfied clients
+            </motion.p>
           </div>
 
           <div className="relative">
-            <div className="overflow-hidden">
-              <motion.div
-                animate={{ x: [0, -1920, 0] }}
-                transition={{ duration: 30, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-                className="flex gap-6 whitespace-nowrap"
+            <div className="relative h-[400px] md:h-[300px] bg-gradient-to-br from-purple-900/20 to-pink-900/20 p-[1px] rounded-xl overflow-hidden">
+              <div className="bg-gray-900/90 rounded-xl h-full backdrop-blur-sm relative overflow-hidden">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeTestimonial}
+                    initial={{ opacity: 0, x: 100 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -100 }}
+                    transition={{ duration: 0.5 }}
+                    className="absolute inset-0 flex flex-col md:flex-row items-center"
+                  >
+                    <TestimonialCard testimonial={testimonials[activeTestimonial]} />
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </div>
+
+            <div className="flex justify-center mt-8 gap-4">
+              <button
+                onClick={() => setActiveTestimonial((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1))}
+                className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition-colors"
+                aria-label="Previous Testimonial"
               >
-                {[1, 2, 3, 4, 5].map((item) => (
-                  <div key={item} className="w-80 md:w-96 inline-block">
-                    <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 backdrop-blur-sm p-6 rounded-xl border border-gray-800">
-                      <div className="mb-4">
-                        <svg
-                          className="h-8 w-8 text-purple-400"
-                          fill="currentColor"
-                          viewBox="0 0 32 32"
-                          aria-hidden="true"
-                        >
-                          <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
-                        </svg>
-                      </div>
-                      <p className="text-lg mb-6">
-                        "Their team delivered an exceptional solution that exceeded our expectations. The new design has
-                        significantly improved our conversion rates and customer satisfaction."
-                      </p>
-                      <div className="flex items-center">
-                        <div className="h-12 w-12 rounded-full bg-purple-900/50 flex items-center justify-center mr-4">
-                          <span className="text-lg font-bold">C{item}</span>
-                        </div>
-                        <div>
-                          <h4 className="font-bold">Client {item}</h4>
-                          <p className="text-sm text-gray-400">Company {item}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                <ChevronLeft className="h-6 w-6" />
+              </button>
+              <div className="flex items-center gap-2">
+                {testimonials.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveTestimonial(index)}
+                    className={`h-3 w-3 rounded-full transition-colors ${
+                      activeTestimonial === index ? "bg-purple-500" : "bg-gray-700"
+                    }`}
+                    aria-label={`Testimonial ${index + 1}`}
+                  />
                 ))}
-              </motion.div>
+              </div>
+              <button
+                onClick={() => setActiveTestimonial((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1))}
+                className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition-colors"
+                aria-label="Next Testimonial"
+              >
+                <ChevronRight className="h-6 w-6" />
+              </button>
             </div>
           </div>
         </div>

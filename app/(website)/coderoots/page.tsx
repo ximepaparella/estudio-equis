@@ -32,15 +32,18 @@ import {
   GraduationCap,
   Zap,
   Building,
+  X
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { PortfolioCard, type PortfolioProject } from "@/components/portfolio/PortfolioCard"
 
 export default function CodeRoots() {
   const [activeTestimonial, setActiveTestimonial] = useState(0)
   const [showVideo, setShowVideo] = useState(false)
   const [activeMonth, setActiveMonth] = useState(new Date().getMonth())
+  const [selectedProject, setSelectedProject] = useState<PortfolioProject | null>(null)
 
   const { scrollY } = useScroll()
   const heroRef = useRef<HTMLDivElement>(null)
@@ -160,60 +163,65 @@ export default function CodeRoots() {
     },
   ]
 
-  const portfolioProjects = [
+  const portfolioProjects: PortfolioProject[] = [
     {
       id: 1,
       title: "HealthTrack AI",
-      category: "Healthcare",
+      category: ["web", "design"],
       description: "Plataforma de seguimiento médico con integración de IA para predicción de patrones de salud",
       image: "/placeholder.svg?height=400&width=600&text=HealthTrack+AI",
-      techStack: ["React", "Node.js", "TensorFlow", "MongoDB"],
+      client: "Healthcare Provider",
+      tags: ["React", "Node.js", "TensorFlow", "MongoDB"],
       color: "from-purple-500 to-pink-500",
     },
     {
       id: 2,
       title: "EcoFinance",
-      category: "Fintech",
+      category: ["web", "design"],
       description: "Sistema de gestión financiera para empresas con enfoque en sostenibilidad y reportes ESG",
       image: "/placeholder.svg?height=400&width=600&text=EcoFinance",
-      techStack: ["Vue.js", "Django", "PostgreSQL", "Docker"],
+      client: "Financial Services",
+      tags: ["Vue.js", "Django", "PostgreSQL", "Docker"],
       color: "from-blue-500 to-cyan-500",
     },
     {
       id: 3,
       title: "LogiSmart",
-      category: "Logistics",
+      category: ["web", "mobile"],
       description: "Optimización de rutas de distribución con algoritmos de machine learning y tracking en tiempo real",
       image: "/placeholder.svg?height=400&width=600&text=LogiSmart",
-      techStack: ["React Native", "Python", "AWS", "GraphQL"],
+      client: "Logistics Company",
+      tags: ["React Native", "Python", "AWS", "GraphQL"],
       color: "from-green-500 to-teal-500",
     },
     {
       id: 4,
       title: "EduConnect",
-      category: "Education",
-      description:
-        "Plataforma educativa que conecta estudiantes con mentores especializados mediante matching inteligente",
+      category: ["web", "design"],
+      description: "Plataforma educativa que conecta estudiantes con mentores especializados mediante matching inteligente",
       image: "/placeholder.svg?height=400&width=600&text=EduConnect",
-      techStack: ["Next.js", "Firebase", "Tailwind", "WebRTC"],
+      client: "Education Platform",
+      tags: ["Next.js", "Firebase", "Tailwind", "WebRTC"],
       color: "from-pink-500 to-purple-500",
     },
     {
       id: 5,
       title: "RetailVision",
-      category: "Retail",
+      category: ["web", "mobile"],
       description: "Sistema de análisis de comportamiento de clientes en tiendas físicas mediante visión computacional",
       image: "/placeholder.svg?height=400&width=600&text=RetailVision",
-      techStack: ["Angular", "Python", "OpenCV", "Azure"],
+      client: "Retail Chain",
+      tags: ["Angular", "Python", "OpenCV", "Azure"],
       color: "from-yellow-500 to-orange-500",
     },
     {
       id: 6,
       title: "GreenCity",
-      category: "Smart Cities",
+      category: ["web", "mobile"],
       description: "Plataforma IoT para monitoreo y optimización de recursos urbanos con enfoque en sostenibilidad",
       image: "/placeholder.svg?height=400&width=600&text=GreenCity",
-      techStack: ["React", "Node.js", "InfluxDB", "MQTT"],
+      client: "Smart City Initiative",
+      tags: ["React", "Node.js", "InfluxDB", "MQTT"],
       color: "from-teal-500 to-green-500",
     },
   ]
@@ -433,11 +441,13 @@ export default function CodeRoots() {
     ],
   }
 
-  const scrollToSection = (elementRef: React.RefObject<HTMLElement>) => {
-    window.scrollTo({
-      top: elementRef.current?.offsetTop,
-      behavior: "smooth",
-    })
+  const scrollToSection = (elementRef: React.RefObject<HTMLElement | null>) => {
+    if (elementRef.current) {
+      window.scrollTo({
+        top: elementRef.current.offsetTop,
+        behavior: "smooth",
+      })
+    }
   }
 
   return (
@@ -918,64 +928,12 @@ export default function CodeRoots() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {portfolioProjects.map((project, index) => (
-              <motion.div
+              <PortfolioCard
                 key={project.id}
-                initial={{ opacity: 0, y: 50 }}
-                animate={portfolioInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
-                className="group cursor-pointer relative h-[400px]"
-              >
-                <motion.div
-                  whileHover={{
-                    y: -10,
-                    transition: { duration: 0.3 },
-                  }}
-                  className="relative h-full rounded-xl overflow-hidden"
-                >
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${project.color} opacity-0 group-hover:opacity-20 transition-opacity duration-300`}
-                  ></div>
-                  <Image
-                    src={project.image || "/placeholder.svg"}
-                    alt={project.title}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                    <span
-                      className={`inline-block text-xs bg-gradient-to-r ${project.color} bg-clip-text text-transparent px-2 py-1 rounded-full border border-gray-700 mb-2`}
-                    >
-                      {project.category}
-                    </span>
-                    <h3 className="text-2xl font-bold mb-2 text-white">{project.title}</h3>
-                    <p className="text-sm text-gray-300 mb-4">{project.description}</p>
-
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {project.techStack.map((tech, idx) => (
-                        <span key={idx} className="text-xs bg-gray-800/80 px-2 py-1 rounded-full">
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-
-                    <div className="flex items-center text-white font-medium">
-                      Ver Proyecto <ArrowRight className="ml-2 h-4 w-4" />
-                    </div>
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  className="absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-gradient-to-br from-black/80 to-black/60 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                >
-                  <div
-                    className={`h-16 w-16 rounded-full bg-gradient-to-br ${project.color} flex items-center justify-center`}
-                  >
-                    <ArrowRight className="h-6 w-6 text-white" />
-                  </div>
-                </motion.div>
-              </motion.div>
+                project={project}
+                animationDelay={0.2 + index * 0.1}
+                onSelect={setSelectedProject}
+              />
             ))}
           </div>
 
@@ -986,6 +944,69 @@ export default function CodeRoots() {
           </div>
         </motion.div>
       </section>
+
+      {/* Project Modal */}
+      <AnimatePresence>
+        {selectedProject && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={() => setSelectedProject(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
+                onClick={() => setSelectedProject(null)}
+              >
+                <X className="h-6 w-6" />
+              </button>
+
+              <div className="relative h-[400px] md:h-[500px]">
+                <Image
+                  src={selectedProject.image || "/placeholder.svg"}
+                  alt={selectedProject.title}
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+              </div>
+
+              <div className="p-8">
+                <h2 className="text-3xl font-bold mb-4">{selectedProject.title}</h2>
+                <p className="text-gray-300 mb-6">Client: {selectedProject.client}</p>
+
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {selectedProject.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 rounded-full bg-white/10 text-sm"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex gap-4">
+                  <Button
+                    className={`bg-gradient-to-r ${selectedProject.color} hover:opacity-90 text-white`}
+                  >
+                    View Live Project <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                  <Button variant="outline">View Case Study</Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Programs Section */}
       <section ref={programRef} className="py-20 px-4 md:px-8 bg-gradient-to-b from-gray-900 to-black relative">
