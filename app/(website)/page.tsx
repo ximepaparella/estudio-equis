@@ -18,14 +18,20 @@ import {
   Play,
   ChevronLeft,
   ChevronRight,
+  X
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import ContactForm from "@/components/contact-form"
 import TeamMember from "@/components/team-member"
+import { PortfolioCard, type PortfolioProject } from "@/components/portfolio/PortfolioCard"
+import { portfolioProjects } from "@/data/portfolioProjects"
+import { TestimonialCard, type Testimonial } from "@/components/testimonials/TestimonialCard"
+import { testimonials } from "@/data/testimonials"
 
 export default function Home() {
   const [activeTestimonial, setActiveTestimonial] = useState(0)
   const [showVideo, setShowVideo] = useState(false)
+  const [selectedProject, setSelectedProject] = useState<PortfolioProject | null>(null)
 
   const { scrollY } = useScroll()
   const heroRef = useRef<HTMLDivElement>(null)
@@ -49,36 +55,6 @@ export default function Home() {
     [0, 300],
     ["linear-gradient(to right, #a78bfa, #ec4899, #f43f5e)", "linear-gradient(to right, #8b5cf6, #d946ef, #f43f5e)"],
   )
-
-  const testimonials = [
-    {
-      quote:
-        "Working with this team was a game-changer for our business. They delivered a solution that exceeded our expectations and transformed our digital presence.",
-      author: "John Smith",
-      company: "Tech Innovations",
-      imageSrc: "/placeholder.svg?height=100&width=100&text=JS",
-      color: "from-purple-500 to-pink-500",
-      rating: 5,
-    },
-    {
-      quote:
-        "Their attention to detail and commitment to quality is unmatched. The final product was exactly what we needed, and the results speak for themselves.",
-      author: "Maria Garcia",
-      company: "Global Solutions",
-      imageSrc: "/placeholder.svg?height=100&width=100&text=MG",
-      color: "from-blue-500 to-cyan-500",
-      rating: 5,
-    },
-    {
-      quote:
-        "Not only did they deliver an amazing product, but they were a pleasure to work with throughout the entire process. Highly recommended!",
-      author: "David Lee",
-      company: "Innovative Startups",
-      imageSrc: "/placeholder.svg?height=100&width=100&text=DL",
-      color: "from-green-500 to-teal-500",
-      rating: 5,
-    },
-  ]
 
   const services = [
     {
@@ -104,35 +80,13 @@ export default function Home() {
     },
   ]
 
-  const projects = [
-    {
-      id: 1,
-      title: "E-commerce Platform",
-      category: "Web Development",
-      image: "/placeholder.svg?height=400&width=600&text=Project+1",
-      color: "from-purple-500 to-pink-500",
-    },
-    {
-      id: 2,
-      title: "Mobile Banking App",
-      category: "Mobile Development",
-      image: "/placeholder.svg?height=400&width=600&text=Project+2",
-      color: "from-blue-500 to-cyan-500",
-    },
-    {
-      id: 3,
-      title: "Brand Identity",
-      category: "Branding & Design",
-      image: "/placeholder.svg?height=400&width=600&text=Project+3",
-      color: "from-green-500 to-teal-500",
-    },
-  ]
-
-  const scrollToSection = (elementRef: React.RefObject<HTMLElement>) => {
-    window.scrollTo({
-      top: elementRef.current?.offsetTop,
-      behavior: "smooth",
-    })
+  const scrollToSection = (elementRef: React.RefObject<HTMLElement | null>) => {
+    if (elementRef.current) {
+      window.scrollTo({
+        top: elementRef.current.offsetTop,
+        behavior: "smooth",
+      })
+    }
   }
 
   return (
@@ -529,57 +483,13 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {projects.map((project, index) => (
-              <motion.div
+            {portfolioProjects.map((project, index) => (
+              <PortfolioCard
                 key={project.id}
-                initial={{ opacity: 0, y: 50 }}
-                animate={portfolioInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
-                className="group cursor-pointer relative h-[400px]"
-              >
-                <Link href={`/portfolio/project-${project.id}`}>
-                  <motion.div
-                    whileHover={{
-                      y: -10,
-                      transition: { duration: 0.3 },
-                    }}
-                    className="relative h-full rounded-xl overflow-hidden"
-                  >
-                    <div
-                      className={`absolute inset-0 bg-gradient-to-br ${project.color} opacity-0 group-hover:opacity-20 transition-opacity duration-300`}
-                    ></div>
-                    <Image
-                      src={project.image || "/placeholder.svg"}
-                      alt={project.title}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                      <span
-                        className={`inline-block text-xs bg-gradient-to-r ${project.color} bg-clip-text text-transparent px-2 py-1 rounded-full border border-gray-700 mb-2`}
-                      >
-                        {project.category}
-                      </span>
-                      <h3 className="text-2xl font-bold mb-4 text-white">{project.title}</h3>
-                      <div className="flex items-center text-white font-medium">
-                        View Project <ArrowRight className="ml-2 h-4 w-4" />
-                      </div>
-                    </div>
-                  </motion.div>
-
-                  <motion.div
-                    className="absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-gradient-to-br from-black/80 to-black/60 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    <div
-                      className={`h-16 w-16 rounded-full bg-gradient-to-br ${project.color} flex items-center justify-center`}
-                    >
-                      <ArrowRight className="h-6 w-6 text-white" />
-                    </div>
-                  </motion.div>
-                </Link>
-              </motion.div>
+                project={project}
+                animationDelay={0.2 + index * 0.1}
+                onSelect={setSelectedProject}
+              />
             ))}
           </div>
 
@@ -698,6 +608,7 @@ export default function Home() {
                   <motion.div
                     key={index}
                     whileHover={{ y: -5, x: 5 }}
+                    transition={{ duration: 0.2 }}
                     className="flex items-center bg-gradient-to-r from-purple-900/20 to-pink-900/20 p-[1px] rounded-xl overflow-hidden"
                   >
                     <div className="flex items-center bg-gray-900 px-4 py-3 rounded-xl w-full">
@@ -818,50 +729,9 @@ export default function Home() {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -100 }}
                     transition={{ duration: 0.5 }}
-                    className="absolute inset-0 flex flex-col md:flex-row items-center p-6 md:p-12"
+                    className="absolute inset-0 flex flex-col md:flex-row items-center"
                   >
-                    <div className="md:w-1/3 mb-6 md:mb-0 flex justify-center">
-                      <div className="relative">
-                        <div
-                          className={`bg-gradient-to-br ${testimonials[activeTestimonial].color} p-[1px] rounded-full`}
-                        >
-                          <div className="relative h-24 w-24 rounded-full overflow-hidden">
-                            <Image
-                              src={testimonials[activeTestimonial].imageSrc || "/placeholder.svg"}
-                              alt={testimonials[activeTestimonial].author}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                        </div>
-                        <div className="absolute -bottom-2 -right-2 bg-gray-900 rounded-full p-1">
-                          <div
-                            className={`bg-gradient-to-br ${testimonials[activeTestimonial].color} rounded-full p-1`}
-                          >
-                            <svg
-                              className="h-6 w-6 text-white"
-                              fill="currentColor"
-                              viewBox="0 0 32 32"
-                              aria-hidden="true"
-                            >
-                              <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
-                            </svg>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="md:w-2/3 md:pl-8">
-                      <p className="text-xl md:text-2xl font-medium mb-6">{testimonials[activeTestimonial].quote}</p>
-                      <div>
-                        <div className="flex items-center mb-2">
-                          {Array.from({ length: testimonials[activeTestimonial].rating }).map((_, i) => (
-                            <Star key={i} className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                          ))}
-                        </div>
-                        <h4 className="text-xl font-bold">{testimonials[activeTestimonial].author}</h4>
-                        <p className="text-gray-400">{testimonials[activeTestimonial].company}</p>
-                      </div>
-                    </div>
+                    <TestimonialCard testimonial={testimonials[activeTestimonial]} />
                   </motion.div>
                 </AnimatePresence>
               </div>
@@ -871,6 +741,7 @@ export default function Home() {
               <button
                 onClick={() => setActiveTestimonial((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1))}
                 className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition-colors"
+                aria-label="Previous Testimonial"
               >
                 <ChevronLeft className="h-6 w-6" />
               </button>
@@ -882,12 +753,14 @@ export default function Home() {
                     className={`h-3 w-3 rounded-full transition-colors ${
                       activeTestimonial === index ? "bg-purple-500" : "bg-gray-700"
                     }`}
+                    aria-label={`Testimonial ${index + 1}`}
                   />
                 ))}
               </div>
               <button
                 onClick={() => setActiveTestimonial((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1))}
                 className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition-colors"
+                aria-label="Next Testimonial"
               >
                 <ChevronRight className="h-6 w-6" />
               </button>
@@ -948,8 +821,7 @@ export default function Home() {
                         </svg>
                       ),
                       title: "Phone",
-                      info: "+1 (555) 123-4567",
-                      color: "from-purple-500 to-pink-500",
+                      value: "+1 (123) 456-7890",
                     },
                     {
                       icon: (
@@ -964,13 +836,12 @@ export default function Home() {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m-18 4v7a2 2 0 002 2h14a2 2 0 002-2v-7"
                           />
                         </svg>
                       ),
                       title: "Email",
-                      info: "info@creativeagency.com",
-                      color: "from-blue-500 to-cyan-500",
+                      value: "info@example.com",
                     },
                     {
                       icon: (
@@ -985,7 +856,7 @@ export default function Home() {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"
                           />
                           <path
                             strokeLinecap="round"
@@ -995,58 +866,17 @@ export default function Home() {
                           />
                         </svg>
                       ),
-                      title: "Location",
-                      info: "123 Innovation Street, Tech City, TC 10101",
-                      color: "from-green-500 to-teal-500",
+                      title: "Address",
+                      value: "123 Main St, Anytown, CA 12345",
                     },
-                  ].map((item, index) => (
-                    <motion.div
-                      key={index}
-                      whileHover={{ x: 5 }}
-                      className={`bg-gradient-to-br ${item.color} p-[1px] rounded-xl overflow-hidden`}
-                    >
-                      <div className="flex items-start bg-gray-900 p-4 rounded-xl">
-                        <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center mr-4">
-                          {item.icon}
-                        </div>
-                        <div>
-                          <h4 className="text-lg font-medium">{item.title}</h4>
-                          <p className="text-gray-400">{item.info}</p>
-                        </div>
+                  ].map((contact, index) => (
+                    <div key={index} className="flex items-center">
+                      <div className="flex-shrink-0 mr-4">{contact.icon}</div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white">{contact.title}</h4>
+                        <p className="text-gray-400">{contact.value}</p>
                       </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-2xl font-bold mb-4">Follow Us</h3>
-                <div className="flex space-x-4">
-                  {["twitter", "facebook", "instagram", "linkedin"].map((social) => (
-                    <motion.a
-                      key={social}
-                      whileHover={{ y: -5, scale: 1.1 }}
-                      href={`https://${social}.com`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-500/30 to-pink-500/30 flex items-center justify-center hover:from-purple-500 hover:to-pink-500 transition-all duration-300"
-                    >
-                      <span className="sr-only">{social}</span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 text-white"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                        />
-                      </svg>
-                    </motion.a>
+                    </div>
                   ))}
                 </div>
               </div>
