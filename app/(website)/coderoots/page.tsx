@@ -1280,7 +1280,7 @@ export default function CodeRoots() {
               },
               {
                 icon: <Coffee className="h-8 w-8 text-pink-400" />,
-                title: "Fogones Técnicos",
+                title: "Charlas Técnicas",
                 description: "Lectura, debate y arquitectura de software",
                 color: "from-pink-500 to-purple-500",
               },
