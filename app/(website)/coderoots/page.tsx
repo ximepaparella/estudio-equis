@@ -47,6 +47,7 @@ export default function CodeRoots() {
   const problemsRef = useRef<HTMLDivElement>(null)
   const marketProblemsRef = useRef<HTMLDivElement>(null)
   const solutionRef = useRef<HTMLDivElement>(null)
+  const portfolioRef = useRef<HTMLDivElement>(null)
   const programRef = useRef<HTMLDivElement>(null)
   const communityRef = useRef<HTMLDivElement>(null)
   const eventsRef = useRef<HTMLDivElement>(null)
@@ -55,6 +56,7 @@ export default function CodeRoots() {
   const problemsInView = useInView(problemsRef, { once: true, amount: 0.2 })
   const marketProblemsInView = useInView(marketProblemsRef, { once: true, amount: 0.2 })
   const solutionInView = useInView(solutionRef, { once: true, amount: 0.2 })
+  const portfolioInView = useInView(portfolioRef, { once: true, amount: 0.2 })
   const programInView = useInView(programRef, { once: true, amount: 0.2 })
   const communityInView = useInView(communityRef, { once: true, amount: 0.2 })
   const eventsInView = useInView(eventsRef, { once: true, amount: 0.2 })
@@ -155,6 +157,64 @@ export default function CodeRoots() {
       description: "Las empresas contratan micro-equipos con mentor para tareas y proyectos reales",
       features: ["Equipos curados", "Seguimiento continuo", "Resultados medibles", "Bajo riesgo"],
       color: "from-green-500 to-teal-500",
+    },
+  ]
+
+  const portfolioProjects = [
+    {
+      id: 1,
+      title: "HealthTrack AI",
+      category: "Healthcare",
+      description: "Plataforma de seguimiento médico con integración de IA para predicción de patrones de salud",
+      image: "/placeholder.svg?height=400&width=600&text=HealthTrack+AI",
+      techStack: ["React", "Node.js", "TensorFlow", "MongoDB"],
+      color: "from-purple-500 to-pink-500",
+    },
+    {
+      id: 2,
+      title: "EcoFinance",
+      category: "Fintech",
+      description: "Sistema de gestión financiera para empresas con enfoque en sostenibilidad y reportes ESG",
+      image: "/placeholder.svg?height=400&width=600&text=EcoFinance",
+      techStack: ["Vue.js", "Django", "PostgreSQL", "Docker"],
+      color: "from-blue-500 to-cyan-500",
+    },
+    {
+      id: 3,
+      title: "LogiSmart",
+      category: "Logistics",
+      description: "Optimización de rutas de distribución con algoritmos de machine learning y tracking en tiempo real",
+      image: "/placeholder.svg?height=400&width=600&text=LogiSmart",
+      techStack: ["React Native", "Python", "AWS", "GraphQL"],
+      color: "from-green-500 to-teal-500",
+    },
+    {
+      id: 4,
+      title: "EduConnect",
+      category: "Education",
+      description:
+        "Plataforma educativa que conecta estudiantes con mentores especializados mediante matching inteligente",
+      image: "/placeholder.svg?height=400&width=600&text=EduConnect",
+      techStack: ["Next.js", "Firebase", "Tailwind", "WebRTC"],
+      color: "from-pink-500 to-purple-500",
+    },
+    {
+      id: 5,
+      title: "RetailVision",
+      category: "Retail",
+      description: "Sistema de análisis de comportamiento de clientes en tiendas físicas mediante visión computacional",
+      image: "/placeholder.svg?height=400&width=600&text=RetailVision",
+      techStack: ["Angular", "Python", "OpenCV", "Azure"],
+      color: "from-yellow-500 to-orange-500",
+    },
+    {
+      id: 6,
+      title: "GreenCity",
+      category: "Smart Cities",
+      description: "Plataforma IoT para monitoreo y optimización de recursos urbanos con enfoque en sostenibilidad",
+      image: "/placeholder.svg?height=400&width=600&text=GreenCity",
+      techStack: ["React", "Node.js", "InfluxDB", "MQTT"],
+      color: "from-teal-500 to-green-500",
     },
   ]
 
@@ -817,6 +877,227 @@ export default function CodeRoots() {
         </motion.div>
       </section>
 
+      {/* User Journey Section */}
+      <section className="py-20 px-4 md:px-8 bg-gray-100 relative">
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="max-w-7xl mx-auto relative z-10"
+        >
+          <div className="text-center mb-16">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="text-4xl md:text-6xl font-bold mb-6 text-gray-900"
+            >
+              ¿En qué{" "}
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">etapa</span>{" "}
+              estás?
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="text-xl text-gray-600 max-w-3xl mx-auto"
+            >
+              CodeRoots es un entorno vivo, donde cada perfil encuentra su lugar para crecer.
+            </motion.p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              {
+                emoji: "👶",
+                title: "Estoy empezando",
+                description:
+                  "Si sos Junior, post-bootcamp o autodidacta, te damos base sólida, prácticas reales y mentoría.",
+                color: "from-blue-500 to-cyan-500",
+              },
+              {
+                emoji: "🧗",
+                title: "Estoy en crecimiento",
+                description:
+                  "Si ya tenés algo de experiencia pero te falta trabajar en equipo o ganar confianza, sumate a desafíos semanales y proyectos profesionales con soporte.",
+                color: "from-green-500 to-teal-500",
+              },
+              {
+                emoji: "🧑‍🏫",
+                title: "Quiero compartir lo que sé",
+                description:
+                  "Si sos Senior y querés devolver a la comunidad, podés sumarte como mentor o guía técnico.",
+                color: "from-purple-500 to-pink-500",
+              },
+              {
+                emoji: "🚀",
+                title: "Estoy practicando liderazgo",
+                description:
+                  "Si querés ser Tech Lead, CTO o CPO, podés entrenar habilidades reales de gestión y acompañamiento, dentro de nuestros equipos guiados.",
+                color: "from-orange-500 to-red-500",
+              },
+            ].map((stage, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
+                viewport={{ once: true }}
+                whileHover={{
+                  y: -10,
+                  scale: 1.02,
+                  transition: { duration: 0.3 },
+                }}
+                className="group cursor-pointer"
+              >
+                <div className="bg-white rounded-xl p-8 h-full shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 hover:border-gray-300">
+                  <div className="text-center">
+                    <div className="text-6xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                      {stage.emoji}
+                    </div>
+                    <h3 className="text-xl font-bold mb-4 text-gray-900 group-hover:text-gray-700 transition-colors duration-300">
+                      {stage.title}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed text-sm">{stage.description}</p>
+                  </div>
+
+                  {/* Gradient accent line */}
+                  <div
+                    className={`mt-6 h-1 w-0 group-hover:w-full bg-gradient-to-r ${stage.color} transition-all duration-500 rounded-full mx-auto`}
+                  ></div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mt-12"
+          >
+            <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 text-white px-8 py-3">
+              Encontrá tu lugar
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* Portfolio Projects Section */}
+      <section ref={portfolioRef} className="py-20 px-4 md:px-8 bg-gradient-to-b from-black to-gray-900 relative">
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={portfolioInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8 }}
+          className="max-w-7xl mx-auto relative z-10"
+        >
+          <div className="text-center mb-16">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={portfolioInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5 }}
+              className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 px-4 py-1 rounded-full text-sm text-purple-300 mb-4 inline-block"
+            >
+              PORTFOLIO DE PROYECTOS
+            </motion.div>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={portfolioInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="text-4xl md:text-6xl font-bold mb-6"
+            >
+              Lo que{" "}
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500">
+                Construimos
+              </span>{" "}
+              Juntos
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={portfolioInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-xl text-gray-400 max-w-3xl mx-auto"
+            >
+              Proyectos reales, desafíos técnicos y soluciones concretas
+            </motion.p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {portfolioProjects.map((project, index) => (
+              <motion.div
+                key={project.id}
+                initial={{ opacity: 0, y: 50 }}
+                animate={portfolioInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
+                className="group cursor-pointer relative h-[400px]"
+              >
+                <motion.div
+                  whileHover={{
+                    y: -10,
+                    transition: { duration: 0.3 },
+                  }}
+                  className="relative h-full rounded-xl overflow-hidden"
+                >
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-br ${project.color} opacity-0 group-hover:opacity-20 transition-opacity duration-300`}
+                  ></div>
+                  <Image
+                    src={project.image || "/placeholder.svg"}
+                    alt={project.title}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                    <span
+                      className={`inline-block text-xs bg-gradient-to-r ${project.color} bg-clip-text text-transparent px-2 py-1 rounded-full border border-gray-700 mb-2`}
+                    >
+                      {project.category}
+                    </span>
+                    <h3 className="text-2xl font-bold mb-2 text-white">{project.title}</h3>
+                    <p className="text-sm text-gray-300 mb-4">{project.description}</p>
+
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {project.techStack.map((tech, idx) => (
+                        <span key={idx} className="text-xs bg-gray-800/80 px-2 py-1 rounded-full">
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center text-white font-medium">
+                      Ver Proyecto <ArrowRight className="ml-2 h-4 w-4" />
+                    </div>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  className="absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-gradient-to-br from-black/80 to-black/60 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <div
+                    className={`h-16 w-16 rounded-full bg-gradient-to-br ${project.color} flex items-center justify-center`}
+                  >
+                    <ArrowRight className="h-6 w-6 text-white" />
+                  </div>
+                </motion.div>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 text-white">
+              Ver Todos los Proyectos <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        </motion.div>
+      </section>
+
       {/* Programs Section */}
       <section ref={programRef} className="py-20 px-4 md:px-8 bg-gradient-to-b from-gray-900 to-black relative">
         <motion.div
@@ -855,7 +1136,7 @@ export default function CodeRoots() {
             </motion.p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-8">
             {programs.map((program, index) => (
               <motion.div
                 key={index}
@@ -1227,6 +1508,88 @@ export default function CodeRoots() {
               </button>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Final CTA Section - Mentors & Companies */}
+      <section className="py-20 px-4 md:px-8 bg-gradient-to-b from-black to-gray-900 relative">
+        <div className="max-w-5xl mx-auto text-center">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-3xl md:text-5xl font-bold mb-6 text-white"
+          >
+            ¿Querés sumar tu{" "}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-500">
+              experiencia
+            </span>{" "}
+            o tu{" "}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-cyan-500">empresa</span>?
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            viewport={{ once: true }}
+            className="text-xl text-gray-300 mb-12 max-w-4xl mx-auto"
+          >
+            Buscamos mentores, líderes y empresas que quieran formar parte del futuro del talento tech.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            viewport={{ once: true }}
+            className="flex flex-col sm:flex-row gap-6 justify-center"
+          >
+            <Button
+              size="lg"
+              className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-8 py-4 text-lg font-semibold"
+            >
+              <Users className="mr-3 h-5 w-5" />
+              Quiero ser mentor/a
+            </Button>
+            <Button
+              size="lg"
+              className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-8 py-4 text-lg font-semibold"
+            >
+              <Building className="mr-3 h-5 w-5" />
+              Soy una empresa
+            </Button>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            viewport={{ once: true }}
+            className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-12"
+          >
+            <div className="text-center">
+              <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 p-8 rounded-xl backdrop-blur-sm border border-blue-500/20">
+                <Users className="h-12 w-12 text-blue-400 mx-auto mb-4" />
+                <h3 className="text-xl font-bold mb-3 text-white">Para Mentores</h3>
+                <p className="text-gray-300 text-sm">
+                  Comparte tu experiencia, guía el crecimiento de nuevos talentos y forma parte de una comunidad que
+                  está transformando la industria tech.
+                </p>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="bg-gradient-to-br from-green-500/20 to-teal-500/20 p-8 rounded-xl backdrop-blur-sm border border-green-500/20">
+                <Building className="h-12 w-12 text-green-400 mx-auto mb-4" />
+                <h3 className="text-xl font-bold mb-3 text-white">Para Empresas</h3>
+                <p className="text-gray-300 text-sm">
+                  Accede a equipos curados con mentoría activa, reduce riesgos de contratación y contribuye al
+                  desarrollo del talento tech.
+                </p>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
